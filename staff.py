@@ -34,15 +34,16 @@ class Staff(commands.Cog):
         await self.client.process_commands(message)
         if message.channel.id == 656798105957564416:
             starttags = ['[event]', '*[event]*', '**[event]**', '***[event]***']
-            if message.content.lower() in starttags:
-                c.execute("SELECT weekevents FROM stafftable WHERE userid=?", (message.author.id,))
-                c.execute("UPDATE stafftable SET weekevents=? WHERE userid=?",
-                          (int(re.sub("[(),\[\]]", "", str(c.fetchall()))) + 1, message.author.id))
-                c.execute("SELECT totalevents FROM stafftable WHERE userid=?", (message.author.id,))
-                c.execute("UPDATE stafftable SET totalevents=? WHERE userid=?",
-                          (int(re.sub("[(),\[\]]", "", str(c.fetchall()))) + 1, message.author.id))
-                conn.commit()
-                await message.add_reaction(self.client.check)
+            for tag in starttags:
+                if tag in message.content.lower():
+                    c.execute("SELECT weekevents FROM stafftable WHERE userid=?", (message.author.id,))
+                    c.execute("UPDATE stafftable SET weekevents=? WHERE userid=?",
+                              (int(re.sub("[(),\[\]]", "", str(c.fetchall()))) + 1, message.author.id))
+                    c.execute("SELECT totalevents FROM stafftable WHERE userid=?", (message.author.id,))
+                    c.execute("UPDATE stafftable SET totalevents=? WHERE userid=?",
+                              (int(re.sub("[(),\[\]]", "", str(c.fetchall()))) + 1, message.author.id))
+                    conn.commit()
+                    await message.add_reaction(self.client.check)
         if message.content.lower() == 'hello there':
             await message.channel.send("general kenobi")
 
@@ -58,8 +59,7 @@ class Staff(commands.Cog):
                 weekevents = c.fetchone()[0]
                 c.execute("UPDATE stafftable SET weekevents=0 WHERE userid=?", (user.id,))
                 conn.commit()
-                await context.send(
-                    f"{context.author.mention} Cleared events for {user.mention}, they had {weekevents} events.")
+                await context.send(f"{context.author.mention} Cleared events for {user.mention}, they had {weekevents} events.")
         else:
             await context.send(f"{context.author.mention} {self.client.x} Insufficient permissions.")
 
