@@ -125,7 +125,7 @@ class Cheeseballz(commands.Cog):
             embed.add_field(name="Balance", value=bal, inline=True)
             embed.add_field(name="Upgrade level", value=upgradelevel, inline=True)
             embed.add_field(name="\u200b", value="\u200b", inline=True)
-            embed.add_field(name="Amount gambled today", value=currentgamble, inline=False)
+            embed.add_field(name="Lifetime amount gambled", value=currentgamble, inline=False)
             embed.add_field(name="Time until next !daily", value=dailytimeleft, inline=False)
             embed.add_field(name="Time until next !weekly", value=weeklytimeleft, inline=False)
             embed.add_field(name="Time until next !monthly", value=monthlytimeleft, inline=False)
