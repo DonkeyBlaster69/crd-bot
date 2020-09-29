@@ -1,5 +1,6 @@
 import discord
 import random
+import funcs
 from discord.ext import commands
 
 
@@ -45,7 +46,7 @@ class Assign(commands.Cog):
             await staffannouncements.send(embed=embed)
             await context.message.add_reaction(self.client.check)
         else:
-            await self.client.say(f"{context.author.mention} {self.client.x} Insufficient permissions.")
+            await funcs.noperms(context, self.client)
 
 
 def setup(client):

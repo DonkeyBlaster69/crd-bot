@@ -31,7 +31,6 @@ class Staff(commands.Cog):
     # check for [event] tag
     @commands.Cog.listener()
     async def on_message(self, message):
-        await self.client.process_commands(message)
         if message.channel.id == 656798105957564416:
             starttags = ['[event]', '*[event]*', '**[event]**', '***[event]***']
             for tag in starttags:
