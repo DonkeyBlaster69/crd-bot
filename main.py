@@ -1,11 +1,12 @@
 import discord
 import time
 import sys
+import funcs
 from discord.ext.commands import Bot
 
 TOKEN = "NTUzODQwODQ0MzYxMTcwOTQ0.XvM3KQ.bE9hZLNejGzehBRvt541TZuwJFk"
 # if adding new module, remember to add in updates.py
-startup_extensions = ["cheeseballz", "randoms", "presence", "staff", "others", "updates", "exec", "assign",
+startup_extensions = ["cheeseballz", "cbgames", "randoms", "presence", "staff", "others", "updates", "exec", "assign",
                       "errorhandler", "jishaku"]
 client = Bot(command_prefix='!')
 
@@ -30,17 +31,13 @@ async def on_ready():
             print(e)
 
 
-async def noperms(context):
-    await context.send(f"{context.author.mention} {client.x} Insufficient permissions.")
-
-
 @client.command(name='shutdown')
 async def shutdown(context):
     if context.author.id == 291661685863874560:
         await context.message.add_reaction(client.check)
         sys.exit()
     else:
-        await noperms(context)
+        await funcs.noperms(context, client)
 
 
 @client.command(name='ping')

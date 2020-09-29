@@ -4,7 +4,7 @@ from discord.ext import commands
 import random
 import sqlite3
 from discord.ext.commands import BucketType
-import cbops
+import funcs
 
 conn = sqlite3.connect('cheeseballz.db')
 c = conn.cursor()
@@ -18,16 +18,16 @@ class CBgames(commands.Cog):
     @commands.command(name='slots')
     @commands.cooldown(rate=1, per=4, type=BucketType.member)
     async def slots(self, context, amount: int = None):
-        bal = cbops.getbal(context.author.id)
+        bal = funcs.getbal(context.author.id)
         if amount is None:
             await context.send(f"{context.author.mention} Command usage: `!slots <amount>`")
         elif amount < 50:
             await context.send(f"{context.author.mention} You must bet a minimum of 50 cheeseballz. You currently have {bal} cheeseballz.")
         elif bal < amount:
-            await cbops.insufficientcb(context)
+            await funcs.insufficientcb(context, self.client)
         else:
-            cbops.addgamble(context.author.id, amount)
-            cbops.removecb(context.author.id, amount)
+            funcs.addgamble(context.author.id, amount)
+            funcs.removecb(context.author.id, amount)
 
             # Define list with one element, to line up rolls and indexes
             roll = ['placeholder']
@@ -60,39 +60,39 @@ class CBgames(commands.Cog):
             if roll[13] == roll[14] and roll[14] == roll[15]:
                 await context.send(f"{context.author.mention} Congrats! Received {amount * 12} cheeseballz back.")
                 winnings = amount * 12
-                cbops.addcb(context.author.id, winnings)
+                funcs.addcb(context.author.id, winnings)
             else:
                 await context.send(f"{context.author.mention} Sorry, try again.")
 
     @commands.command(name='double', aliases=['dub', 'doub'])
     @commands.cooldown(rate=1, per=2, type=BucketType.member)
     async def double(self, context, amount: int = None):
-        bal = cbops.getbal(context.author.id)
+        bal = funcs.getbal(context.author.id)
         if amount is None:
             await context.send(f"{context.author.mention} Command usage: `!double <amount>`")
         elif amount < 10:
             await context.send(f"{context.author.mention} You must be at least 10 cheeseballz.")
         elif bal < amount:
-            await cbops.insufficientcb(context)
+            await funcs.insufficientcb(context)
         else:
-            cbops.addgamble(context.author.id, amount)
-            cbops.removecb(context.author.id, amount)
+            funcs.addgamble(context.author.id, amount)
+            funcs.removecb(context.author.id, amount)
             if random.choice([True, False]) is True:
                 await context.send(f"{context.author.mention} Congrats! Received {amount*2} cheeseballz back.")
-                cbops.addcb(context.author.id, amount*2)
+                funcs.addcb(context.author.id, amount * 2)
             else:
                 await context.send(f"{context.author.mention} Sorry, try again.")
 
     @commands.command(name='russianroulette', aliases=['rr'])
     async def russianroulette(self, context, operation: str = None, gameid: int = None, amount: int = None):
-        bal = cbops.getbal(context.author.id)
+        bal = funcs.getbal(context.author.id)
         if operation is None or gameid is None:
             await context.send(f"{context.author.mention} Command usage: `!rr <new/join/start> <gameid> <amount>`")
         elif bal < amount:
-            await cbops.insufficientcb(context)
+            await funcs.insufficientcb(context, self.client)
         else:
             if operation == 'new':
-                cbops.removecb(context.author.id, amount)
+                funcs.removecb(context.author.id, amount)
                 c.execute("INSERT INTO russianroulette(gameid, bet, player1, started) VALUES (?, ?, ?, 0", (gameid, amount, context.author.id))
                 embed = discord.Embed(title="Russian Roulette", color=0xffa500)
                 embed.add_field(name="Game ID", value=str(gameid), inline=True)
@@ -109,7 +109,7 @@ class CBgames(commands.Cog):
                 c.execute("SELECT player2 FROM russianroulette WHERE gameid=?", (gameid,))
                 if str(c.fetchone()[0]) is None:
                     await context.send(f"{context.author.mention} Not enough players joined to start the game. Cancelling and refunding CB.")
-                    cbops.addcb(context.author.id, amount)
+                    funcs.addcb(context.author.id, amount)
                 else:
                     c.execute("UPDATE russianroulette SET started=1 WHERE gameid=?", (gameid,))
                     await context.send(f"Starting game {gameid}.")
@@ -173,7 +173,7 @@ class CBgames(commands.Cog):
                             winner = int(players[0])
                             await context.send(f"<@{winner}> has won the game!")
                             toAdd = amount * originalPlayers
-                            cbops.addcb(winner, toAdd)
+                            funcs.addcb(winner, toAdd)
                             await context.send(f"{toAdd} cheeseballz has been deposited to <@{winner}>'s account.")
                             c.execute("DELETE FROM russianroulette WHERE gameid=", (gameid,))
                             conn.commit()
@@ -188,7 +188,7 @@ class CBgames(commands.Cog):
                     c.execute("SELECT amount FROM russianroulette WHERE gameid=?", (gameid,))
                     amount = int(c.fetchone()[0])
                     if bal < amount:
-                        await cbops.insufficientcb(context)
+                        await funcs.insufficientcb(context, self.client)
                     else:
                         # Function that takes in "playernum" in the format of "player2" and so on, and attempts to parse the game
                         # After parsing, it adds a player if the game has an empty space
@@ -196,7 +196,7 @@ class CBgames(commands.Cog):
                             c.execute("SELECT ? FROM russianroulette WHERE gameid=?", (playernum, gameid))
                             if str(c.fetchone()[0]) == 'None':
                                 c.execute("UPDATE russianroulette SET ?=? WHERE gameid=?", (playernum, context.author.id, gameid))
-                                cbops.removecb(context.author.id, amount)
+                                funcs.removecb(context.author.id, amount)
                                 await context.send(f"{context.author.mention} Joined game {gameid}, betting {amount} cheeseballz.")
                                 return True
                             else:
@@ -211,13 +211,13 @@ class CBgames(commands.Cog):
     @commands.command(name='blackjack', aliases=['bj'])
     @commands.cooldown(rate=1, per=30, type=BucketType.member)
     async def blackjack(self, context, amount: int = None):
-        bal = cbops.getbal(context.author.id)
+        bal = funcs.getbal(context.author.id)
         if amount is None:
             await context.send(f"{context.author.mention} Command usage: `!blackjack <amount>`")
         elif amount < 50:
             await context.send(f"{context.author.mention} You must be at least 50 cheeseballz.")
         elif bal < amount:
-            await cbops.insufficientcb(context)
+            await funcs.insufficientcb(context, self.client)
         else:
             pass
 

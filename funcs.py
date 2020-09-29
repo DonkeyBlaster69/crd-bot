@@ -1,5 +1,4 @@
 import sqlite3
-from main import client
 
 conn = sqlite3.connect('cheeseballz.db')
 c = conn.cursor()
@@ -35,5 +34,9 @@ def addgamble(userid, amount):
     conn.commit()
 
 
-async def insufficientcb(context):
+async def insufficientcb(context, client):
     await context.send(f"{context.author.mention} {client.x} Not enough cheeseballz. You currently have {getbal(context.author.id)} cheeseballz.")
+
+
+async def noperms(context, client):
+    await context.send(f"{context.author.mention} {client.x} Insufficient permissions.")

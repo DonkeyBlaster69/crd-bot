@@ -4,10 +4,8 @@ import re
 import asyncio
 from datetime import datetime, timedelta
 import sqlite3
-from discord.ext import commands, tasks
-from discord.ext.commands.cooldowns import BucketType
-import main
-import cbops
+from discord.ext import commands
+import funcs
 
 conn = sqlite3.connect('cheeseballz.db')
 c = conn.cursor()
@@ -15,7 +13,6 @@ c = conn.cursor()
 
 class Cheeseballz(commands.Cog):
 
-    # ---SCHEDULING FOR CLEARING DAILIES
     def __init__(self, client):
         self.client = client
 
@@ -32,7 +29,7 @@ class Cheeseballz(commands.Cog):
                 except Exception as e:
                     await context.send(e)
             else:
-                await main.noperms(context)
+                await funcs.noperms(context, self.client)
 
     # event for people joining, making new acc
     @commands.Cog.listener()
@@ -58,7 +55,7 @@ class Cheeseballz(commands.Cog):
                     return embed
 
                 if operation == "+" or operation == "add":
-                    cbops.addcb(user.id, amount)
+                    funcs.addcb(user.id, amount)
                     embed = discord.Embed(title="Cheeseballz Added", color=0x00ff00)
                     await self.client.logs.send(embed=fillembed(embed))
                     await context.message.add_reaction(self.client.check)
@@ -69,19 +66,19 @@ class Cheeseballz(commands.Cog):
                     await context.message.add_reaction(self.client.check)
 
                 elif operation == "set":
-                    cbops.setcb(user.id, amount)
+                    funcs.setcb(user.id, amount)
                     embed = discord.Embed(title="Cheeseballz Set", color=0xffff00)
                     await self.client.logs.send(embed=fillembed(embed))
                     await context.message.add_reaction(self.client.check)
                 else:
                     await context.send(f"{context.author.mention} Command usage: `!cb <+/-/set> <@user> <amount> <reason>`")
         else:
-            await main.noperms(context)
+            await funcs.noperms(context, self.client)
 
     @commands.command(name='balance', aliases=['bal', 'profile'])
     async def balance(self, context, *, user: discord.Member = None):
         async def getbal(user):
-            bal = cbops.getbal(user.id)
+            bal = funcs.getbal(user.id)
             c.execute("SELECT upgradelevel FROM cheeseballztable WHERE userid=?", (user.id,))
             upgradelevel = str(c.fetchone()[0])
             c.execute("SELECT currentgamble FROM cheeseballztable WHERE userid=?", (user.id,))
@@ -143,7 +140,7 @@ class Cheeseballz(commands.Cog):
     @commands.command(name='resetaccount', aliases=['resetacc'])
     async def resetaccount(self, context):
         defaulttime = "2020-01-01 00:00:00.000000"
-        prevbal = cbops.getbal(context.author.id)
+        prevbal = funcs.getbal(context.author.id)
         c.execute("DELETE FROM cheeseballztable WHERE userid=?", (context.author.id,))
         c.execute("INSERT INTO cheeseballztable(userid, cheeseballz, upgradelevel, daily, weekly, monthly) VALUES (?, 0, 0, ?, ?, ?)", (context.author.id, defaulttime, defaulttime, defaulttime))
         conn.commit()
@@ -155,7 +152,7 @@ class Cheeseballz(commands.Cog):
 
     @commands.command(name='shop')
     async def shop(self, context):
-        balance = cbops.getbal(context.author.id)
+        balance = funcs.getbal(context.author.id)
         c.execute("SELECT upgradelevel FROM cheeseballztable WHERE userid=?", (context.author.id,))
         upgradelevel = int(c.fetchone()[0])
         embed = discord.Embed(title="Shop", description="Purchase items with !buy <number>, sell items with !sell <number>", color=0xb200b2)
@@ -181,13 +178,13 @@ class Cheeseballz(commands.Cog):
         uwu = self.client.crdguild.get_role(714783199170920508)
         owo = self.client.crdguild.get_role(725292693487485018)
         # --
-        bal = cbops.getbal(context.author.id)
+        bal = funcs.getbal(context.author.id)
 
         async def role(role, amount):
             if bal < amount:
-                await cbops.insufficientcb(context)
+                await funcs.insufficientcb(context, self.client)
             else:
-                cbops.removecb(context.author.id, amount)
+                funcs.removecb(context.author.id, amount)
                 await context.send(f"{context.author.mention} {self.client.check} Purchase successful.")
                 await context.author.add_roles(role, reason="Purchased from cheeseballz shop")
                 embed = discord.Embed(title="Role Purchased", color=0x00ff00)
@@ -211,7 +208,7 @@ class Cheeseballz(commands.Cog):
             await role(owo, 2000)
         elif selection == 8:
             if bal < 30000:
-                await cbops.insufficientcb(context)
+                await funcs.insufficientcb(context, self.client)
             else:
                 checkmsg = await context.send(f"""{context.author.mention} Purchasing a custom role for 30,000 cb.
 - You have 60 seconds to respond to each question.
@@ -269,7 +266,7 @@ Click the checkmark to continue once you're ready.""")
                         embed.add_field(name="Role name", value=rolenamemsg.content, inline=False)
                         embed.add_field(name="Role color", value=hexmsg.content, inline=False)
                         await self.client.logs.send(embed=embed)
-                        cbops.removecb(context.author.id, 30000)
+                        funcs.removecb(context.author.id, 30000)
                         conn.commit()
                     except:
                         await context.send(f"{context.author.mention} One or more fields had an invalid input. Try again.")
@@ -279,7 +276,7 @@ Click the checkmark to continue once you're ready.""")
             if bal < 10000:
                 await context.send(f"{context.author.mention} {self.client.x} Not enough cheeseballz.")
             else:
-                cbops.removecb(context.author.id, 10000)
+                funcs.removecb(context.author.id, 10000)
                 c.execute("SELECT upgradelevel FROM cheeseballztable WHERE userid=?", (context.author.id,))
                 upgrade = int(c.fetchone()[0]) + 1
                 c.execute("UPDATE cheeseballztable SET upgradelevel=? WHERE userid=?", (upgrade, context.author.id))
@@ -304,7 +301,7 @@ Click the checkmark to continue once you're ready.""")
 
         async def role(role, amount):
             if role in context.author.roles:
-                cbops.addcb(context.author.id, amount)
+                funcs.addcb(context.author.id, amount)
                 await context.author.remove_roles(role, reason="Sold to cheeseballz shop")
                 await context.send(f"{context.author.mention} {self.client.check} Refund successful. Received {amount} cheeseballz.")
                 embed = discord.Embed(title="Role sold", color=0x00ff00)
@@ -339,12 +336,12 @@ Click the checkmark to continue once you're ready.""")
             if amount < 1:
                 await context.send(f"{context.author.mention} {self.client.x} You must send at least one cb.")
             else:
-                bal = cbops.getbal(context.author.id)
+                bal = funcs.getbal(context.author.id)
                 if bal < amount:
-                    await cbops.insufficientcb(context)
+                    await funcs.insufficientcb(context)
                 else:
-                    cbops.removecb(context.author.id, amount)
-                    cbops.addcb(user.id, amount)
+                    funcs.removecb(context.author.id, amount)
+                    funcs.addcb(user.id, amount)
                     await context.message.add_reaction(self.client.check)
                     embed = discord.Embed(title="Cheeseballz Sent", color=0xffff00)
                     embed.add_field(name="From user", value=context.author.mention, inline=False)
@@ -366,9 +363,9 @@ Click the checkmark to continue once you're ready.""")
             upgradelevel = int(c.fetchone()[0])
             lower = 100 + (upgradelevel * 100)
             upper = 200 + (upgradelevel * 100)
-            bal = cbops.getbal(context.author.id)
+            bal = funcs.getbal(context.author.id)
             amount = random.randint(lower, upper)
-            cbops.addcb(context.author.id, amount)
+            funcs.addcb(context.author.id, amount)
             c.execute("UPDATE cheeseballztable SET daily=? WHERE userid=?", (now, context.author.id))
             conn.commit()
             await context.send(f"{context.author.mention} {self.client.check} Collected {amount} cheeseballz. You now have {bal + amount} cheeseballz.")
@@ -388,9 +385,9 @@ Click the checkmark to continue once you're ready.""")
             upgradelevel = int(c.fetchone()[0])
             lower = 600 + (upgradelevel * 200)
             upper = 800 + (upgradelevel * 200)
-            bal = cbops.getbal(context.author.id)
+            bal = funcs.getbal(context.author.id)
             amount = random.randint(lower, upper)
-            cbops.addcb(context.author.id, amount)
+            funcs.addcb(context.author.id, amount)
             c.execute("UPDATE cheeseballztable SET weekly=? WHERE userid=?", (now, context.author.id))
             conn.commit()
             await context.send(f"{context.author.mention} {self.client.check} Collected {amount} cheeseballz. You now have {bal + amount} cheeseballz.")
@@ -410,9 +407,9 @@ Click the checkmark to continue once you're ready.""")
             upgradelevel = int(c.fetchone()[0])
             lower = 1500 + (upgradelevel * 500)
             upper = 2000 + (upgradelevel * 500)
-            bal = cbops.getbal(context.author.id)
+            bal = funcs.getbal(context.author.id)
             amount = random.randint(lower, upper)
-            cbops.addcb(context.author.id, amount)
+            funcs.addcb(context.author.id, amount)
             c.execute("UPDATE cheeseballztable SET monthly=? WHERE userid=?", (now, context.author.id))
             conn.commit()
             await context.send(f"{context.author.mention} {self.client.check} Collected {amount} cheeseballz. You now have {bal + amount} cheeseballz.")
@@ -423,7 +420,7 @@ Click the checkmark to continue once you're ready.""")
         total = int(c.fetchone()[0])
         cbexcluded = context.guild.get_role(726974805831843900)
         for member in cbexcluded.members:
-            total = total - cbops.getbal(member.id)
+            total = total - funcs.getbal(member.id)
         await context.send(f"The guild currently has {total} cheeseballz stored.")
 
     @commands.command(name='leaderboard', aliases=['top', 'lb'])
@@ -442,7 +439,7 @@ Click the checkmark to continue once you're ready.""")
                     if cbexcluded in member.roles:
                         pass
                     else:
-                        userdict[userid] = cbops.getbal(userid)
+                        userdict[userid] = funcs.getbal(userid)
                         userlist.append(userid)
                 except AttributeError:
                     pass
@@ -535,9 +532,9 @@ Click the checkmark to continue once you're ready.""")
                 await logmsg.edit(embed=embed)
                 await reqmsg.clear_reactions()
                 if operation == '+':
-                    cbops.addcb(user.id, amount)
+                    funcs.addcb(user.id, amount)
                 elif operation == '-':
-                    cbops.removecb(user.id, amount)
+                    funcs.removecb(user.id, amount)
             elif reaction.emoji == self.client.x:
                 embed = createEmbed(0xff0000)
                 embed.add_field(name="Denied by", value=member.mention, inline=False)
@@ -545,7 +542,7 @@ Click the checkmark to continue once you're ready.""")
                 await logmsg.edit(embed=embed)
                 await reqmsg.clear_reactions()
         else:
-            await main.noperms(context)
+            await funcs.noperms(context, self.client)
 
     @commands.command(name='mcheeseballz', aliases=['mcb'])
     async def mcheeseballz(self, context, operation: str = None, amount: int = None, *, users: str = None):
@@ -557,9 +554,9 @@ Click the checkmark to continue once you're ready.""")
                 userlist = users.split()
                 for userid in userlist:
                     if operation == '+':
-                        cbops.addcb(amount, userid)
+                        funcs.addcb(amount, userid)
                     elif operation == '-':
-                        cbops.removecb(amount, userid)
+                        funcs.removecb(amount, userid)
                     else:
                         await context.send(f"{context.author.mention} Command usage: `!mcb <+/-> <amount> <@users>`")
                         break
@@ -572,7 +569,7 @@ Click the checkmark to continue once you're ready.""")
                 conn.commit()
                 await context.message.add_reaction(self.client.check)
             else:
-                await main.noperms(context)
+                await funcs.noperms(context, self.client)
 
     @commands.command(name='mrequest', aliases=['mreq'])
     async def mrequest(self, context, operation: str = None, amount: int = None, *, users: str = None):
@@ -627,9 +624,9 @@ Click the checkmark to continue once you're ready.""")
                             await logmsg.edit(embed=embed)
                             await reqmsg.clear_reactions()
                             if operation == '+':
-                                cbops.addcb(userid, amount)
+                                funcs.addcb(userid, amount)
                             elif operation == '-':
-                                cbops.removecb(userid, amount)
+                                funcs.removecb(userid, amount)
                         elif reaction.emoji == self.client.x:
                             embed = createEmbed(0xff0000)
                             embed.add_field(name="Denied by", value=member.mention, inline=False)
@@ -637,134 +634,7 @@ Click the checkmark to continue once you're ready.""")
                             await logmsg.edit(embed=embed)
                             await reqmsg.clear_reactions()
             else:
-                await main.noperms(context)
-
-    @commands.command(name='blackjack', aliases=['bj'])
-    @commands.cooldown(rate=2, per=20, type=BucketType.member)
-    async def blackjack(self, context, amount: int = None):
-        bal = cbops.getbal(context.author.id)
-        if amount is None:
-            await context.send(f"{context.author.mention} Command usage: `!blackjack <amount>`")
-        elif amount < 50:
-            await context.send(f"{context.author.mention} You must bet at least 50 cheeseballz.")
-        elif bal < amount:
-            await cbops.insufficientcb(context)
-        else:
-            cbops.removecb(context.author.id, amount)
-            c.execute("SELECT currentgamble FROM cheeseballztable WHERE userid=?", (context.author.id,))
-            currentgamble = int(c.fetchone()[0])
-            c.execute("UPDATE cheeseballztable SET currentgamble=? WHERE userid=?", (currentgamble + amount, context.author.id))
-            conn.commit()
-            suits = [':hearts:', ':spades:', ':clubs:', ':diamonds:']
-            cardvalues = [2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 'Ace']  # multiple 10s to make up for the j, q, and k
-            dealer1value = random.choice(cardvalues)
-            dealer1suit = random.choice(suits)
-            dealer2value = random.choice(cardvalues)
-            dealer2suit = random.choice(suits)
-            player1value = random.choice(cardvalues)
-            player1suit = random.choice(suits)
-            player2value = random.choice(cardvalues)
-            player2suit = random.choice(suits)
-            await context.send(f"""{context.author.mention} Dealer's face up card is a {dealer1value} of {dealer1suit}.
-
-Your cards are:
-- {player1value} of {player1suit}
-- {player2value} of {player2suit}""")
-
-            dealercalc = False
-            playercalc = False
-            if dealer1value == 'Ace' or dealer2value == 'Ace':
-                dealercalc = True
-                if dealer1value == 10 or dealer2value == 10:
-                    dealertotal = 21
-                elif dealer1value == dealer2value:
-                    dealertotal = 12
-                else:
-                    if dealer1value == 'Ace':
-                        dealertotal = 11 + dealer2value
-                    elif dealer2value == 'Ace':
-                        dealertotal = 11 + dealer1value
-            if dealercalc is False:
-                dealertotal = dealer1value + dealer2value
-            if player1value == 'Ace' or player2value == 'Ace':
-                playercalc = True
-                if player1value == 10 or player2value == 10:
-                    await context.send(f"{context.author.mention} Blackjack. Received {amount*3} cheeseballz back.")
-                    cbops.addcb(context.author.id, amount*3)
-                elif player1value == player2value:
-                    playertotal = 12
-                else:
-                    if player1value == 'Ace':
-                        playertotal = 11 + player2value
-                    elif player2value == 'Ace':
-                        playertotal = 11 + player1value
-            if playercalc is False:
-                playertotal = player1value + player2value
-
-            def msgcheck(m):
-                return m.author == context.author and m.channel == context.channel
-
-            while True:
-                await context.send("Type `hit` or `h` to hit, `stand` or `s` to stand.")
-                response = await self.client.wait_for('message', check=msgcheck)
-                if response.content.lower() == 'h' or response.content.lower() == 'hit':
-                    playernewcardvalue = random.choice(cardvalues)
-                    playernewcardsuit = random.choice(suits)
-                    if playernewcardvalue == 'Ace':
-                        if playertotal + 11 > 21:
-                            playertotal = playertotal + 1
-                            await context.send(
-                                f"{context.author.mention} You drew a {playernewcardvalue} of {playernewcardsuit}. It has been set to 1.")
-                        else:
-                            playertotal = playertotal + 11
-                            await context.send(
-                                f"{context.author.mention} You drew a {playernewcardvalue} of {playernewcardsuit}. It has been set to 11.")
-                    else:
-                        playertotal = playertotal + playernewcardvalue
-                        await context.send(
-                            f"{context.author.mention} You drew a {playernewcardvalue} of {playernewcardsuit}.")
-                    if playertotal == 21:
-                        await context.send(f"{context.author.mention} You have a total of 21, standing.")
-                        break
-                    elif playertotal > 21:
-                        await context.send(f"{context.author.mention} Bust. Dealer wins.")
-                        break
-                elif response.content.lower() == 's' or response.content.lower() == 'stand':
-                    await context.send(f"{context.author.mention} Standing with a value of {playertotal}.")
-                    break
-                else:
-                    await context.send(f"{context.author.mention} Invalid response.")
-            if playertotal <= 21:
-                dealermsg = f"""{context.author.mention} Dealer cards:
-- {dealer1value} of {dealer1suit}
-- {dealer2value} of {dealer2suit}"""
-                dealersend = await context.send(dealermsg)
-                while True:
-                    if dealertotal >= 17:
-                        break
-                    dealernewcardsuit = random.choice(suits)
-                    dealernewcardvalue = random.choice(cardvalues)
-                    if dealernewcardvalue == 'Ace':
-                        if dealertotal + 11 > 21:
-                            dealertotal = dealertotal + 1
-                        else:
-                            dealertotal = dealertotal + 11
-                    else:
-                        dealertotal = dealertotal + dealernewcardvalue
-                    dealermsg = dealermsg + f"\n- {dealernewcardvalue} of {dealernewcardsuit}"
-                    await dealersend.edit(content=dealermsg)
-                    await asyncio.sleep(0.25)
-                if dealertotal > 21:
-                    await context.send(f"{context.author.mention} Dealer bust. Received {amount*2}.")
-                    cbops.addcb(context.author.id, amount*2)
-                elif dealertotal == playertotal:
-                    await context.send(f"{context.author.mention} Push. Received {amount}.")
-                    cbops.addcb(context.author.id, amount)
-                elif dealertotal > playertotal:
-                    await context.send(f"{context.author.mention} Dealer wins.")
-                else:
-                    await context.send(f"{context.author.mention} You won. Received {amount * 2}.")
-                    cbops.addcb(context.author.id, amount*2)
+                await funcs.noperms(context, self.client)
 
 
 def setup(client):
