@@ -19,13 +19,6 @@ class Cheeseballz(commands.Cog):
     def __init__(self, client):
         self.client = client
 
-    @tasks.loop(hours=24)
-    async def clearCurrentGamble(self):
-        c.execute("UPDATE cheeseballztable SET currentgamble=0")
-        print("Current gamble reset")
-        return
-    clearCurrentGamble.start()
-
     @commands.command(name='cbsql')
     async def cbsql(self, context, *, command: str = None):
         if command is None:
@@ -258,8 +251,7 @@ Click the checkmark to continue once you're ready.""")
                         mentionable = True
                     elif reaction.emoji == self.client.x:
                         mentionable = False
-                    await context.send(
-                        f"{context.author.mention} Creating role `{rolenamemsg.content}` with hex color `{hexmsg.content}`.")
+                    await context.send(f"{context.author.mention} Creating role `{rolenamemsg.content}` with hex color `{hexmsg.content}`.")
                     try:
                         if '#' in hexmsg.content:
                             fixedhex = re.sub("[#]", "", hexmsg.content)

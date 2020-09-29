@@ -3,7 +3,7 @@ from discord.ext import commands
 
 class ErrorHandler(commands.Cog):
 
-    @commands.Cog.listener
+    @commands.Cog.listener()
     async def on_command_error(self, context, exception):
 
         error = getattr(exception, 'original', exception)

@@ -29,7 +29,7 @@ class Staff(commands.Cog):
                 await context.send(f"{context.author.mention} {self.client.x} Insufficient permissions.")
 
     # check for [event] tag
-    @commands.Cog.listener
+    @commands.Cog.listener()
     async def on_message(self, message):
         await self.client.process_commands(message)
         if message.channel.id == 656798105957564416:

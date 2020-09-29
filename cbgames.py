@@ -208,6 +208,19 @@ class CBgames(commands.Cog):
                             if await attemptjoin(playernum) is True:
                                 break
 
+    @commands.command(name='blackjack', aliases=['bj'])
+    @commands.cooldown(rate=1, per=30, type=BucketType.member)
+    async def blackjack(self, context, amount: int = None):
+        bal = cbops.getbal(context.author.id)
+        if amount is None:
+            await context.send(f"{context.author.mention} Command usage: `!blackjack <amount>`")
+        elif amount < 50:
+            await context.send(f"{context.author.mention} You must be at least 50 cheeseballz.")
+        elif bal < amount:
+            await cbops.insufficientcb(context)
+        else:
+            pass
+
 
 def setup(client):
     client.add_cog(CBgames(client))
