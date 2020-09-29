@@ -35,7 +35,7 @@ class Cheeseballz(commands.Cog):
                 await main.noperms(context)
 
     # event for people joining, making new acc
-    @commands.Cog.listener
+    @commands.Cog.listener()
     async def on_member_join(self, member):
         c.execute("SELECT COUNT(1) FROM cheeseballztable WHERE userid=?", (member.id,))
         if str(c.fetchone()[0]) == '0':
