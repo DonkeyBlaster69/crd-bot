@@ -28,6 +28,5 @@ class Updates(commands.Cog):
                 await context.message.add_reaction(self.client.check)
 
 
-
 def setup(client):
     client.add_cog(Updates(client))
