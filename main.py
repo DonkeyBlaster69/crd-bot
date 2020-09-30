@@ -4,10 +4,10 @@ import sys
 import funcs
 from discord.ext.commands import Bot
 
-TOKEN = "NTUzODQwODQ0MzYxMTcwOTQ0.XvM3KQ.bE9hZLNejGzehBRvt541TZuwJFk"
+TOKEN = open("token.txt", "r")
 # if adding new module, remember to add in updates.py
 startup_extensions = ["cheeseballz", "cbgames", "randoms", "presence", "staff", "others", "updates", "exec", "assign",
-                      "errorhandler", "jishaku"]
+                      "membercount", "errorhandler", "jishaku"]
 client = Bot(command_prefix='!')
 
 
@@ -17,12 +17,20 @@ async def on_ready():
     print(client.user.name)
     print(client.user.id)
     print('------')
+    # Emoji defs
     client.x = client.get_emoji(689001238141861934)
     client.check = client.get_emoji(688998780900737096)
-    client.logs = client.get_channel(657112105467772929)
+    # CB perms role as well as guild
     client.crdguild = client.get_guild(528679766270935040)
     client.cbperms = client.crdguild.get_role(658829550850932736)
+    # CRD Bot logs channel and CB requests channel
+    client.logs = client.get_channel(657112105467772929)
     client.requests = client.get_channel(660213957448957952)
+    # Member count channel defs
+    client.membercount_channel = client.get_channel(544800224883900416)
+    client.usercount_channel = client.get_channel(544800225945059338)
+    client.botcount_channel = client.get_channel(544800226582593536)
+    # Iterate through startup_extensions and attempt to load
     for extension in startup_extensions:
         try:
             client.load_extension(extension)

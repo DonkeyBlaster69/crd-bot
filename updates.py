@@ -15,7 +15,7 @@ class Updates(commands.Cog):
             exitcode = os.system("mv ~/share/updates/* ~")
             # module list ---
             modules = ["updates", "cheeseballz", "randoms", "presence", "staff", "others", "exec", "assign",
-                       "errorhandler"]
+                       "membercount", "errorhandler"]
             currentmodule = 0
             # ---------------
             if exitcode == 0:

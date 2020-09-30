@@ -7,7 +7,7 @@ class Presence(commands.Cog):
         self.client = client
 
     @commands.command(name='presence')
-    async def presence(self, context, presencetype: str = None, content: str = None):
+    async def presence(self, context, presencetype: str = None, *, content: str = None):
         if presencetype is None:
             await context.send(f"{context.author.mention} Command usage: `!presence <playing/watching/listening/reset> <content>`")
         else:
