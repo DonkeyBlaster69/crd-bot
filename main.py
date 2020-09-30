@@ -4,7 +4,7 @@ import sys
 import funcs
 from discord.ext.commands import Bot
 
-TOKEN = open("token.txt", "r")
+TOKEN = open("token.txt", "r").read()
 # if adding new module, remember to add in updates.py
 startup_extensions = ["cheeseballz", "cbgames", "randoms", "presence", "staff", "others", "updates", "exec", "assign",
                       "membercount", "errorhandler", "jishaku"]
