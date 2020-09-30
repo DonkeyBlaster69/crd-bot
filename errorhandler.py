@@ -15,7 +15,7 @@ class ErrorHandler(commands.Cog):
             await context.send(error)
         elif isinstance(error, commands.CommandNotFound):
             pass
-        elif isinstance(error, commands.NotOwner):
+        elif isinstance(error, (commands.NotOwner or commands.MissingPermissions or commands.MissingRole)):
             await funcs.noperms(context, self.client)
         else:
             raise error
