@@ -2,6 +2,7 @@ import discord
 import re
 import sqlite3
 import asyncio
+import funcs
 from discord.ext import commands
 
 conn = sqlite3.connect('staff.db')
@@ -14,19 +15,17 @@ class Staff(commands.Cog):
         self.client = client
 
     @commands.command(name='staffsql')
+    @commands.is_owner()
     async def staffsql(self, context, *, command: str = None):
         if command is None:
             await context.send(f"{context.author.mention} Command usage: `!staffsql <command>`")
         else:
-            if context.author.id == 291661685863874560:
-                try:
-                    c.execute(command)
-                    await context.send(c.fetchall())
-                    conn.commit()
-                except Exception as e:
-                    await context.send(e)
-            else:
-                await context.send(f"{context.author.mention} {self.client.x} Insufficient permissions.")
+            try:
+                c.execute(command)
+                await context.send(c.fetchall())
+                conn.commit()
+            except Exception as e:
+                await context.send(e)
 
     # check for [event] tag
     @commands.Cog.listener()
@@ -36,31 +35,25 @@ class Staff(commands.Cog):
             for tag in starttags:
                 if tag in message.content.lower():
                     c.execute("SELECT weekevents FROM stafftable WHERE userid=?", (message.author.id,))
-                    c.execute("UPDATE stafftable SET weekevents=? WHERE userid=?",
-                              (int(re.sub("[(),\[\]]", "", str(c.fetchall()))) + 1, message.author.id))
+                    c.execute("UPDATE stafftable SET weekevents=? WHERE userid=?", (int(c.fetchone()[0]) + 1, message.author.id))
                     c.execute("SELECT totalevents FROM stafftable WHERE userid=?", (message.author.id,))
-                    c.execute("UPDATE stafftable SET totalevents=? WHERE userid=?",
-                              (int(re.sub("[(),\[\]]", "", str(c.fetchall()))) + 1, message.author.id))
+                    c.execute("UPDATE stafftable SET totalevents=? WHERE userid=?",(int(c.fetchone()[0]) + 1, message.author.id))
                     conn.commit()
                     await message.add_reaction(self.client.check)
-        if message.content.lower() == 'hello there':
-            await message.channel.send("general kenobi")
 
     @commands.command(name='resetweek')
+    @commands.has_guild_permissions(administrator=True)
     async def resetweek(self, context, user: discord.User = None):
-        if context.author.guild_permissions.administrator:
-            if user is None:
-                c.execute("UPDATE stafftable SET weekevents=0")
-                conn.commit()
-                await context.message.add_reaction(self.client.check)
-            else:
-                c.execute("SELECT weekevents FROM stafftable WHERE userid=?", (user.id,))
-                weekevents = c.fetchone()[0]
-                c.execute("UPDATE stafftable SET weekevents=0 WHERE userid=?", (user.id,))
-                conn.commit()
-                await context.send(f"{context.author.mention} Cleared events for {user.mention}, they had {weekevents} events.")
+        if user is None:
+            c.execute("UPDATE stafftable SET weekevents=0")
+            conn.commit()
+            await context.message.add_reaction(self.client.check)
         else:
-            await context.send(f"{context.author.mention} {self.client.x} Insufficient permissions.")
+            c.execute("SELECT weekevents FROM stafftable WHERE userid=?", (user.id,))
+            weekevents = c.fetchone()[0]
+            c.execute("UPDATE stafftable SET weekevents=0 WHERE userid=?", (user.id,))
+            conn.commit()
+            await context.send(f"{context.author.mention} Cleared events for {user.mention}, they had {weekevents} events.")
 
     @commands.command(name='clearevents')
     async def clearevents(self, context):
@@ -116,7 +109,7 @@ class Staff(commands.Cog):
                     await context.send(f"{context.author.mention} Command usage: `!events <@user> <view/+/-> <amount>`")
                 else:
                     c.execute("SELECT totalevents FROM stafftable WHERE userid=?", (user.id,))
-                    totalevents = int(re.sub("[(),\[\]]", "", str(c.fetchall())))
+                    totalevents = int(c.fetchone()[0])
                     c.execute("UPDATE stafftable SET totalevents=? WHERE userid=?", (totalevents + amount, user.id))
                     await context.message.add_reaction(self.client.check)
             elif action == '-' or action == 'remove':
@@ -124,7 +117,7 @@ class Staff(commands.Cog):
                     await context.send(f"{context.author.mention} Command usage: `!events <@user> <view/+/-> <amount>`")
                 else:
                     c.execute("SELECT totalevents FROM stafftable WHERE userid=?", (user.id,))
-                    totalevents = int(re.sub("[(),\[\]]", "", str(c.fetchall())))
+                    totalevents = int(c.fetchone()[0])
                     c.execute("UPDATE stafftable SET totalevents=? WHERE userid=?", (totalevents - amount, user.id))
                     await context.message.add_reaction(self.client.check)
             elif action == 'view':
@@ -134,7 +127,7 @@ class Staff(commands.Cog):
             conn.commit()
         else:
             if action != 'view':
-                await context.send(f"{context.author.mention} {self.client.x} Insufficient permissions.")
+                await funcs.noperms(context, self.client)
 
     @commands.command(name='addstaff')
     async def addstaff(self, context, staff: discord.Member = None):

@@ -17,6 +17,7 @@ class MemberCount(commands.Cog):
         await self.client.usercount_channel.edit(name=f"User Count: {guild.member_count - len(bots)}")
 
     @commands.command(name="countmembers", aliases=['updatecounters', 'membercount'])
+    @commands.cooldown(rate=1, per=60)
     async def countmembers(self, context):
         await self.updatemembers(guild=context.guild)
         await context.message.add_reaction(self.client.check)

@@ -1,5 +1,5 @@
-import discord
 import os
+import funcs
 from discord.ext import commands
 
 
@@ -9,41 +9,23 @@ class Updates(commands.Cog):
         self.client = client
 
     @commands.command(name='update', aliases=['pushupdates', 'push'])
+    @commands.is_owner()
     async def update(self, context):
-        if context.author.id == 291661685863874560:
-            await context.send("Copying files...")
-            exitcode = os.system("mv ~/share/updates/* ~")
-            # module list ---
-            modules = ["updates", "cheeseballz", "randoms", "presence", "staff", "others", "exec", "assign",
-                       "membercount", "errorhandler"]
-            currentmodule = 0
-            # ---------------
-            if exitcode == 0:
-                modulemsg = await context.send("Reloading modules...")
-                while True:
-                    if currentmodule == len(modules):
-                        await modulemsg.edit(content="Finished pushing updates from `~/share/updates`.")
-                    else:
-                        try:
-                            self.client.unload_extension(modules[currentmodule])
-                        except Exception as e:
-                            await context.send(f"`{e}` Moving on.")
-                        try:
-                            self.client.load_extension(modules[currentmodule])
-                            currentmodule = currentmodule + 1
-                        except Exception as e:
-                            await context.send(f"Failed loading {modules[currentmodule]}.")
-                            try:
-                                await context.send(e)
-                                break
-                            except discord.errors.HTTPException as e:
-                                print(e)
-                                await context.send("Error exceeds Discord character limit. See console for details.")
-                                break
-            elif exitcode == 256:
-                await context.send("`~/share/updates` is empty or does not exist.")
-            else:
-                await context.send(f"Error copying files. Exit code `{exitcode}`.")
+        repo_url = "https://github.com/DonkeyBlaster69/crd-bot.git"
+        await context.send(f"Cloning from {repo_url}")
+        cloneexit = os.system(f"git clone {repo_url} crd-bot-temp")
+        if cloneexit == 0:
+            await context.send("Cloned to crd-bot-temp. Copying .py files.")
+            copyexit = os.system("cd ~/crd-bot-temp && cp ~/crd-bot-temp/*.py ~/crd-bot")
+            if copyexit == 0:
+                await context.send("Finished copying files. Reloading modules and deleting temporary clone folder.")
+                for extension in funcs.startup_extensions:
+                    try:
+                        self.client.load_extension(extension)
+                    except Exception as e:
+                        context.send(e)
+                await context.message.add_reaction(self.client.check)
+
 
 
 def setup(client):

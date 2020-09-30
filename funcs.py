@@ -3,6 +3,9 @@ import sqlite3
 conn = sqlite3.connect('cheeseballz.db')
 c = conn.cursor()
 
+startup_extensions = ["cheeseballz", "cbgames", "randoms", "presence", "staff", "others", "updates", "exec", "assign",
+                      "membercount", "errorhandler", "jishaku"]
+
 
 def addcb(userid, amount):
     c.execute("SELECT cheeseballz FROM cheeseballztable WHERE userid=?", (userid,))

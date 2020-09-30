@@ -3,11 +3,9 @@ import time
 import sys
 import funcs
 from discord.ext.commands import Bot
+from discord.ext import commands
 
 TOKEN = open("token.txt", "r").read()
-# if adding new module, remember to add in updates.py
-startup_extensions = ["cheeseballz", "cbgames", "randoms", "presence", "staff", "others", "updates", "exec", "assign",
-                      "membercount", "errorhandler", "jishaku"]
 client = Bot(command_prefix='!')
 
 
@@ -31,7 +29,7 @@ async def on_ready():
     client.usercount_channel = client.get_channel(544800225945059338)
     client.botcount_channel = client.get_channel(544800226582593536)
     # Iterate through startup_extensions and attempt to load
-    for extension in startup_extensions:
+    for extension in funcs.startup_extensions:
         try:
             client.load_extension(extension)
             print(f"Extension {extension} loaded")
@@ -40,12 +38,10 @@ async def on_ready():
 
 
 @client.command(name='shutdown')
+@commands.is_owner()
 async def shutdown(context):
-    if context.author.id == 291661685863874560:
-        await context.message.add_reaction(client.check)
-        sys.exit()
-    else:
-        await funcs.noperms(context, client)
+    await context.message.add_reaction(client.check)
+    sys.exit()
 
 
 @client.command(name='ping')
@@ -57,40 +53,39 @@ async def ping(context):
 
 
 @client.command(name='load')
+@commands.is_owner()
 async def load(context, extension):
-    check = client.get_emoji(688998780900737096)
-    if context.author.id == 291661685863874560:
+    try:
+        client.load_extension(extension)
+        await context.message.add_reaction(client.check)
+    except Exception as e:
         try:
-            client.load_extension(extension)
-            await context.message.add_reaction(check)
-        except Exception as e:
-            try:
-                await context.send(e)
-            except discord.errors.HTTPException as e:
-                print(e)
-                await context.send("Error exceeds Discord character limit. See console for details.")
+            await context.send(e)
+        except discord.errors.HTTPException as e:
+            print(e)
+            await context.send("Error exceeds Discord character limit. See console for details.")
 
 
 @client.command(name='unload')
+@commands.is_owner()
 async def unload(context, extension):
-    if context.author.id == 291661685863874560:
-        client.unload_extension(extension)
-        await context.message.add_reaction(client.check)
+    client.unload_extension(extension)
+    await context.message.add_reaction(client.check)
 
 
 @client.command(name='reload')
+@commands.is_owner()
 async def reload(context, extension):
-    if context.author.id == 291661685863874560:
+    try:
+        client.unload_extension(extension)
+        client.load_extension(extension)
+        await context.message.add_reaction(client.check)
+    except Exception as e:
         try:
-            client.unload_extension(extension)
-            client.load_extension(extension)
-            await context.message.add_reaction(client.check)
-        except Exception as e:
-            try:
-                await context.send(e)
-            except discord.errors.HTTPException as e:
-                print(e)
-                await context.send("Error exceeds Discord character limit. See console for details.")
+            await context.send(e)
+        except discord.errors.HTTPException as e:
+            print(e)
+            await context.send("Error exceeds Discord character limit. See console for details.")
 
 
 client.run(TOKEN)

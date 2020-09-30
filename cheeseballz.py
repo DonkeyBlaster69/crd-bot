@@ -5,6 +5,7 @@ import asyncio
 from datetime import datetime, timedelta
 import sqlite3
 from discord.ext import commands
+from discord.ext.commands import BucketType
 import funcs
 
 conn = sqlite3.connect('cheeseballz.db')
@@ -17,63 +18,59 @@ class Cheeseballz(commands.Cog):
         self.client = client
 
     @commands.command(name='cbsql')
+    @commands.is_owner()
     async def cbsql(self, context, *, command: str = None):
         if command is None:
             await context.send(f"{context.author.mention} Command usage: `!cbsql <command>`")
         else:
-            if context.author.id == 291661685863874560:
-                try:
-                    c.execute(command)
-                    await context.send(c.fetchall())
-                    conn.commit()
-                except Exception as e:
-                    await context.send(e)
-            else:
-                await funcs.noperms(context, self.client)
+            try:
+                c.execute(command)
+                await context.send(c.fetchall())
+                conn.commit()
+            except Exception as e:
+                await context.send(e)
 
     # event for people joining, making new acc
     @commands.Cog.listener()
     async def on_member_join(self, member):
         c.execute("SELECT COUNT(1) FROM cheeseballztable WHERE userid=?", (member.id,))
         if str(c.fetchone()[0]) == '0':
-            defaulttime = "2020-01-01 00:00:00.000000"
-            c.execute("INSERT INTO cheeseballztable(userid, cheeseballz, upgradelevel, daily, weekly, monthly, gamblelimit, currentgamble) VALUES (?, 0, 0, ?, ?, ?, 0, 0)", (member.id, defaulttime, defaulttime, defaulttime))
+            defaulttime = datetime.now()
+            c.execute("INSERT INTO cheeseballztable(userid, cheeseballz, upgradelevel, daily, weekly, monthly, totalgamble) VALUES (?, 0, 0, ?, ?, ?, 0)", (member.id, defaulttime, defaulttime, defaulttime))
             conn.commit()
 
     @commands.command(name='cheeseballz', aliases=['cb'])
+    @commands.check_any(commands.has_role(658829550850932736), commands.has_guild_permissions(administrator=True))
     async def cheeseballz(self, context, operation: str = None, user: discord.User = None, amount: int = None, *, reason: str = "Not specified"):
-        if self.client.cbperms in context.author.roles or context.author.guild_permissions.adminstrator:
-            if operation is None or user is None or amount is None:
-                await context.send(f"{context.author.mention} Command usage: `!cb <+/-/set> <@user> <amount> <reason>`")
-            else:
-
-                def fillembed(embed):
-                    embed.add_field(name="Staff", value=context.author.mention, inline=False)
-                    embed.add_field(name="User", value=user.mention, inline=True)
-                    embed.add_field(name="Amount", value=amount, inline=False)
-                    embed.add_field(name="Reason", value=reason, inline=False)
-                    return embed
-
-                if operation == "+" or operation == "add":
-                    funcs.addcb(user.id, amount)
-                    embed = discord.Embed(title="Cheeseballz Added", color=0x00ff00)
-                    await self.client.logs.send(embed=fillembed(embed))
-                    await context.message.add_reaction(self.client.check)
-
-                elif operation == "-" or operation == "remove":
-                    embed = discord.Embed(title="Cheeseballz Removed", color=0xff0000)
-                    await self.client.logs.send(embed=fillembed(embed))
-                    await context.message.add_reaction(self.client.check)
-
-                elif operation == "set":
-                    funcs.setcb(user.id, amount)
-                    embed = discord.Embed(title="Cheeseballz Set", color=0xffff00)
-                    await self.client.logs.send(embed=fillembed(embed))
-                    await context.message.add_reaction(self.client.check)
-                else:
-                    await context.send(f"{context.author.mention} Command usage: `!cb <+/-/set> <@user> <amount> <reason>`")
+        if operation is None or user is None or amount is None:
+            await context.send(f"{context.author.mention} Command usage: `!cb <+/-/set> <@user> <amount> <reason>`")
         else:
-            await funcs.noperms(context, self.client)
+
+            def fillembed(embed):
+                embed.add_field(name="Staff", value=context.author.mention, inline=False)
+                embed.add_field(name="User", value=user.mention, inline=True)
+                embed.add_field(name="Amount", value=amount, inline=False)
+                embed.add_field(name="Reason", value=reason, inline=False)
+                return embed
+
+            if operation == "+" or operation == "add":
+                funcs.addcb(user.id, amount)
+                embed = discord.Embed(title="Cheeseballz Added", color=0x00ff00)
+                await self.client.logs.send(embed=fillembed(embed))
+                await context.message.add_reaction(self.client.check)
+
+            elif operation == "-" or operation == "remove":
+                embed = discord.Embed(title="Cheeseballz Removed", color=0xff0000)
+                await self.client.logs.send(embed=fillembed(embed))
+                await context.message.add_reaction(self.client.check)
+
+            elif operation == "set":
+                funcs.setcb(user.id, amount)
+                embed = discord.Embed(title="Cheeseballz Set", color=0xffff00)
+                await self.client.logs.send(embed=fillembed(embed))
+                await context.message.add_reaction(self.client.check)
+            else:
+                await context.send(f"{context.author.mention} Command usage: `!cb <+/-/set> <@user> <amount> <reason>`")
 
     @commands.command(name='balance', aliases=['bal', 'profile'])
     async def balance(self, context, *, user: discord.Member = None):
@@ -485,6 +482,7 @@ Click the checkmark to continue once you're ready.""")
             await context.send(f"{context.author.mention} Select a valid page. Pages range from 1-3.")
 
     @commands.command(name='setabout')
+    @commands.cooldown(rate=1, per=30, type=BucketType.member)
     async def setabout(self, context, *, about: str = None):
         if about is None:
             await context.send(f"{context.author.mention} Command usage: `!setabout <about>`")
@@ -500,11 +498,11 @@ Click the checkmark to continue once you're ready.""")
             await context.message.add_reaction(self.client.check)
 
     @commands.command(name='request', aliases=['req'])
+    @commands.has_role(564649798196658186)
     async def request(self, context, operation: str = None, user: discord.Member = None, amount: int = None, *, reason: str = None):
-        staff = context.guild.get_role(564649798196658186)
         if operation is None or user is None or amount is None or reason is None or amount <= 0:
             await context.send(f"{context.author.mention} Command usage: `!request <+/-> <@user> <amount> <reason>`")
-        elif staff in context.author.roles:
+        else:
             def createEmbed(color):
                 embed = discord.Embed(title="Cheeseballz Request", color=color)
                 embed.add_field(name="Staff member", value=context.author.mention, inline=False)
@@ -541,100 +539,93 @@ Click the checkmark to continue once you're ready.""")
                 await reqmsg.edit(embed=embed)
                 await logmsg.edit(embed=embed)
                 await reqmsg.clear_reactions()
-        else:
-            await funcs.noperms(context, self.client)
 
     @commands.command(name='mcheeseballz', aliases=['mcb'])
+    @commands.check_any(commands.has_role(658829550850932736), commands.has_guild_permissions(administrator=True))
     async def mcheeseballz(self, context, operation: str = None, amount: int = None, *, users: str = None):
         if operation is None or amount is None or users is None:
             await context.send(f"{context.author.mention} Command usage: `!mcb <+/-> <amount> <@users>`")
         else:
-            if self.client.cbperms in context.author.roles or context.author.guild_permissions.administrator:
-                users = re.sub("[<@!>]", "", users)
-                userlist = users.split()
-                for userid in userlist:
-                    if operation == '+':
-                        funcs.addcb(amount, userid)
-                    elif operation == '-':
-                        funcs.removecb(amount, userid)
-                    else:
-                        await context.send(f"{context.author.mention} Command usage: `!mcb <+/-> <amount> <@users>`")
-                        break
-                embed = discord.Embed(title="Multiple cheeseballz transactions", color=0xffff00)
-                embed.add_field(name="Staff", value=context.author.mention, inline=False)
-                embed.add_field(name="Operation", value=operation, inline=False)
-                embed.add_field(name="Amount", value=amount, inline=False)
-                embed.add_field(name="User IDs", value=userlist, inline=False)
-                await self.client.logs.send(embed=embed)
-                conn.commit()
-                await context.message.add_reaction(self.client.check)
-            else:
-                await funcs.noperms(context, self.client)
+            users = re.sub("[<@!>]", "", users)
+            userlist = users.split()
+            for userid in userlist:
+                if operation == '+':
+                    funcs.addcb(amount, userid)
+                elif operation == '-':
+                    funcs.removecb(amount, userid)
+                else:
+                    await context.send(f"{context.author.mention} Command usage: `!mcb <+/-> <amount> <@users>`")
+                    break
+            embed = discord.Embed(title="Multiple cheeseballz transactions", color=0xffff00)
+            embed.add_field(name="Staff", value=context.author.mention, inline=False)
+            embed.add_field(name="Operation", value=operation, inline=False)
+            embed.add_field(name="Amount", value=amount, inline=False)
+            embed.add_field(name="User IDs", value=userlist, inline=False)
+            await self.client.logs.send(embed=embed)
+            conn.commit()
+            await context.message.add_reaction(self.client.check)
 
     @commands.command(name='mrequest', aliases=['mreq'])
+    @commands.has_role(564649798196658186)
     async def mrequest(self, context, operation: str = None, amount: int = None, *, users: str = None):
         if operation is None or amount is None or users is None:
             await context.send(f"{context.author.mention} Command usage: `!mreq <+/-> <amount> <@users>`")
         else:
-            staff = context.guild.get_role(564649798196658186)
-            if staff in context.author.roles:
-                await context.send(f"{context.author.mention} Reason?")
+            await context.send(f"{context.author.mention} Reason?")
 
-                def messagecheck(m):
-                    return m.author == context.author and m.channel == context.channel
+            def messagecheck(m):
+                return m.author == context.author and m.channel == context.channel
 
-                try:
-                    reason = await self.client.wait_for('message', check=messagecheck, timeout=30)
-                except asyncio.TimeoutError:
-                    reason = None
-                if reason is None:
-                    await context.send(f"{context.author.mention} Reason field was empty or timed out. Try again.")
-                else:
-                    users = re.sub("[<@!>]", "", users)
-                    userlist = users.split()
-                    userid = 0
-                    reqmsgs = []
-
-                    def createEmbed(color):
-                        embed = discord.Embed(title="Multiple Cheeseballz Requests", color=color)
-                        embed.add_field(name="Staff member", value=context.author.mention, inline=False)
-                        embed.add_field(name="User", value=f"<@{userid}>", inline=False)
-                        embed.add_field(name="Operation", value=operation, inline=False)
-                        embed.add_field(name="Amount", value=amount, inline=False)
-                        embed.add_field(name="Reason", value=reason.content, inline=False)
-                        return embed
-
-                    for userid in userlist:
-                        embed = createEmbed(0x6c6c6c)
-                        reqmsg = await self.client.requests.send(embed=embed)
-                        logmsg = await self.client.logs.send(embed=embed)
-                        await reqmsg.add_reaction(self.client.check)
-                        await reqmsg.add_reaction(self.client.x)
-                        reqmsgs.append(reqmsg)
-                    await context.message.add_reaction(self.client.check)
-                    for reqmsg in reqmsgs:
-                        def reactioncheck(reaction, member):
-                            return (reaction.emoji == self.client.check or reaction.emoji == self.client.x) and reaction.message.id == reqmsg.id and self.client.cbperms in member.roles
-
-                        reaction, member = await self.client.wait_for('reaction_add', check=reactioncheck)
-                        if reaction.emoji == self.client.check:
-                            embed = createEmbed(0x00ff00)
-                            embed.add_field(name="Accepted by", value=member.mention, inline=False)
-                            await reqmsg.edit(embed=embed)
-                            await logmsg.edit(embed=embed)
-                            await reqmsg.clear_reactions()
-                            if operation == '+':
-                                funcs.addcb(userid, amount)
-                            elif operation == '-':
-                                funcs.removecb(userid, amount)
-                        elif reaction.emoji == self.client.x:
-                            embed = createEmbed(0xff0000)
-                            embed.add_field(name="Denied by", value=member.mention, inline=False)
-                            await reqmsg.edit(embed=embed)
-                            await logmsg.edit(embed=embed)
-                            await reqmsg.clear_reactions()
+            try:
+                reason = await self.client.wait_for('message', check=messagecheck, timeout=30)
+            except asyncio.TimeoutError:
+                reason = None
+            if reason is None:
+                await context.send(f"{context.author.mention} Reason field was empty or timed out. Try again.")
             else:
-                await funcs.noperms(context, self.client)
+                users = re.sub("[<@!>]", "", users)
+                userlist = users.split()
+                userid = 0
+                reqmsgs = []
+
+                def createEmbed(color):
+                    embed = discord.Embed(title="Multiple Cheeseballz Requests", color=color)
+                    embed.add_field(name="Staff member", value=context.author.mention, inline=False)
+                    embed.add_field(name="User", value=f"<@{userid}>", inline=False)
+                    embed.add_field(name="Operation", value=operation, inline=False)
+                    embed.add_field(name="Amount", value=amount, inline=False)
+                    embed.add_field(name="Reason", value=reason.content, inline=False)
+                    return embed
+
+                for userid in userlist:
+                    embed = createEmbed(0x6c6c6c)
+                    reqmsg = await self.client.requests.send(embed=embed)
+                    logmsg = await self.client.logs.send(embed=embed)
+                    await reqmsg.add_reaction(self.client.check)
+                    await reqmsg.add_reaction(self.client.x)
+                    reqmsgs.append(reqmsg)
+                await context.message.add_reaction(self.client.check)
+                for reqmsg in reqmsgs:
+                    def reactioncheck(reaction, member):
+                        return (reaction.emoji == self.client.check or reaction.emoji == self.client.x) and reaction.message.id == reqmsg.id and self.client.cbperms in member.roles
+
+                    reaction, member = await self.client.wait_for('reaction_add', check=reactioncheck)
+                    if reaction.emoji == self.client.check:
+                        embed = createEmbed(0x00ff00)
+                        embed.add_field(name="Accepted by", value=member.mention, inline=False)
+                        await reqmsg.edit(embed=embed)
+                        await logmsg.edit(embed=embed)
+                        await reqmsg.clear_reactions()
+                        if operation == '+':
+                            funcs.addcb(userid, amount)
+                        elif operation == '-':
+                            funcs.removecb(userid, amount)
+                    elif reaction.emoji == self.client.x:
+                        embed = createEmbed(0xff0000)
+                        embed.add_field(name="Denied by", value=member.mention, inline=False)
+                        await reqmsg.edit(embed=embed)
+                        await logmsg.edit(embed=embed)
+                        await reqmsg.clear_reactions()
 
 
 def setup(client):
