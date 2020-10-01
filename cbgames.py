@@ -93,6 +93,7 @@ class CBgames(commands.Cog):
         else:
             if operation == 'new':
                 funcs.removecb(context.author.id, amount)
+                funcs.addgamble(context.author.id, amount)
                 c.execute("INSERT INTO russianroulette(gameid, bet, player1, started) VALUES (?, ?, ?, 0)", (gameid, amount, context.author.id))
                 embed = discord.Embed(title="Russian Roulette", color=0xffa500)
                 embed.add_field(name="Game ID", value=str(gameid), inline=True)
