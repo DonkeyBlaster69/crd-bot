@@ -211,7 +211,6 @@ class CBgames(commands.Cog):
                         # This loop iterates through the possible empty spots in a game and just checks if the player has joined or not with the return
                         for i in range(2, 7):
                             playernum = ('player' + str(i))
-                            print(playernum)
                             if attemptjoin(playernum) is True:
                                 await context.send(f"{context.author.mention} Joined game {gameid} as player {i}, betting {amount} cheeseballz.")
                                 break
