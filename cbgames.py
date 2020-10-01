@@ -73,7 +73,7 @@ class CBgames(commands.Cog):
         elif amount < 10:
             await context.send(f"{context.author.mention} You must be at least 10 cheeseballz.")
         elif bal < amount:
-            await funcs.insufficientcb(context)
+            await funcs.insufficientcb(context, self.client)
         else:
             funcs.addgamble(context.author.id, amount)
             funcs.removecb(context.author.id, amount)
