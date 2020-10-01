@@ -185,26 +185,24 @@ class CBgames(commands.Cog):
                                 conn.commit()
                                 break
             elif operation == 'join':
-                print("checking started")
                 c.execute("SELECT started FROM russianroulette WHERE gameid=?", (gameid,))
                 started = str(c.fetchone()[0])
                 # If clause checks if game has started, else checks if they have the cb. If they do, keep going
                 if started == '1' or started == 'None':
                     await context.send(f"{context.author.mention} The specified game does not exist or has already started.")
                 else:
-                    print("checking amount")
                     c.execute("SELECT amount FROM russianroulette WHERE gameid=?", (gameid,))
                     amount = int(c.fetchone()[0])
                     if bal < amount:
                         await funcs.insufficientcb(context, self.client)
                     else:
-                        print("passed bal check")
                         # Function that takes in "playernum" in the format of "player2" and so on, and attempts to parse the game
                         # After parsing, it adds a player if the game has an empty space
                         async def attemptjoin(playernum):
                             c.execute("SELECT ? FROM russianroulette WHERE gameid=?", (playernum, gameid))
                             if str(c.fetchone()[0]) == 'None':
                                 c.execute("UPDATE russianroulette SET ?=? WHERE gameid=?", (playernum, context.author.id, gameid))
+                                conn.commit()
                                 funcs.removecb(context.author.id, amount)
                                 await context.send(f"{context.author.mention} Joined game {gameid}, betting {amount} cheeseballz.")
                                 return True
