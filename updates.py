@@ -22,6 +22,7 @@ class Updates(commands.Cog):
                 os.system("sudo rm ~/crd-bot-temp -r")
                 for extension in funcs.startup_extensions:
                     try:
+                        self.client.unload_extension(extension)
                         self.client.load_extension(extension)
                     except Exception as e:
                         await context.send(e)
