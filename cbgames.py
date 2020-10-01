@@ -185,12 +185,14 @@ class CBgames(commands.Cog):
                                 conn.commit()
                                 break
             elif operation == 'join':
+                print("checking started")
                 c.execute("SELECT started FROM russianroulette WHERE gameid=?", (gameid,))
                 started = str(c.fetchone()[0])
                 # If clause checks if game has started, else checks if they have the cb. If they do, keep going
                 if started == '1' or started == 'None':
                     await context.send(f"{context.author.mention} The specified game does not exist or has already started.")
                 else:
+                    print("checking amount")
                     c.execute("SELECT amount FROM russianroulette WHERE gameid=?", (gameid,))
                     amount = int(c.fetchone()[0])
                     if bal < amount:
