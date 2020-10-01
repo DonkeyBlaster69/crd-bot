@@ -110,7 +110,7 @@ class CBgames(commands.Cog):
                     # First bit here checks if there are actually other players in the game
                     # If not, it deletes the game and refunds the original CB taken
                     c.execute("SELECT player2 FROM russianroulette WHERE gameid=?", (gameid,))
-                    if str(c.fetchone()[0]) is None:
+                    if str(c.fetchone()[0]) == "None":
                         await context.send(f"{context.author.mention} Not enough players joined to start the game. Cancelling and refunding CB.")
                         funcs.addcb(context.author.id, amount)
                     else:
