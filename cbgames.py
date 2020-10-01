@@ -234,7 +234,5 @@ class CBgames(commands.Cog):
                      "Eight of Diamonds": 8, "Nine of Diamonds": 9, "Ten of Diamonds": 10, "Jack of Diamonds": 10, "Queen of Diamonds": 10, "King of Diamonds": 10}
 
 
-
-
 def setup(client):
     client.add_cog(CBgames(client))

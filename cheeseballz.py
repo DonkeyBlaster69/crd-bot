@@ -335,7 +335,7 @@ Click the checkmark to continue once you're ready.""")
             else:
                 bal = funcs.getbal(context.author.id)
                 if bal < amount:
-                    await funcs.insufficientcb(context)
+                    await funcs.insufficientcb(context, self.client)
                 else:
                     funcs.removecb(context.author.id, amount)
                     funcs.addcb(user.id, amount)

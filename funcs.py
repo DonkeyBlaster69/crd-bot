@@ -33,7 +33,8 @@ def getbal(userid):
 
 def addgamble(userid, amount):
     c.execute("SELECT totalgamble FROM cheeseballztable WHERE userid=?", (userid,))
-    c.execute("UPDATE cheeseballztable SET totalgamble=? WHERE userid=?", (int(c.fetchone()[0]) + amount, userid))
+    newgambled = int(c.fetchone()[0]) + int(amount)
+    c.execute("UPDATE cheeseballztable SET totalgamble=? WHERE userid=?", (newgambled, userid))
     conn.commit()
 
 
