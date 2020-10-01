@@ -198,13 +198,13 @@ class CBgames(commands.Cog):
                     else:
                         # Function that takes in "playernum" in the format of "player2" and so on, and attempts to parse the game
                         # After parsing, it adds a player if the game has an empty space
-                        async def attemptjoin(playernum):
+                        def attemptjoin(playernum):
                             c.execute("SELECT ? FROM russianroulette WHERE gameid=?", (playernum, gameid))
+                            print(str(c.fetchone()[0]))
                             if str(c.fetchone()[0]) == 'None':
                                 c.execute("UPDATE russianroulette SET ?=? WHERE gameid=?", (playernum, context.author.id, gameid))
                                 conn.commit()
                                 funcs.removecb(context.author.id, amount)
-                                await context.send(f"{context.author.mention} Joined game {gameid}, betting {amount} cheeseballz.")
                                 return True
                             else:
                                 return False
@@ -212,7 +212,8 @@ class CBgames(commands.Cog):
                         # This loop iterates through the possible empty spots in a game and just checks if the player has joined or not with the return
                         for i in range(2, 7):
                             playernum = ('player' + str(i))
-                            if await attemptjoin(playernum) is True:
+                            if attemptjoin(playernum) is True:
+                                await context.send(f"{context.author.mention} Joined game {gameid} as player {i}, betting {amount} cheeseballz.")
                                 break
 
     @commands.command(name='blackjack', aliases=['bj'])
