@@ -201,7 +201,7 @@ class CBgames(commands.Cog):
                         def attemptjoin(playernum):
                             c.execute(f"SELECT {playernum} FROM russianroulette WHERE gameid=?", (gameid,))
                             if c.fetchone()[0] is None:
-                                c.execute("UPDATE russianroulette SET ?=? WHERE gameid=?", (playernum, context.author.id, gameid))
+                                c.execute(f"UPDATE russianroulette SET {playernum}=? WHERE gameid=?", (context.author.id, gameid))
                                 conn.commit()
                                 funcs.removecb(context.author.id, amount)
                                 return True
