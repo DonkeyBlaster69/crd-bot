@@ -114,6 +114,7 @@ class CBgames(commands.Cog):
                     funcs.addcb(context.author.id, amount)
                 else:
                     c.execute("UPDATE russianroulette SET started=1 WHERE gameid=?", (gameid,))
+                    conn.commit()
                     await context.send(f"Starting game {gameid}.")
                     players = []
 
