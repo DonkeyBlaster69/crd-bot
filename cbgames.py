@@ -95,7 +95,7 @@ class CBgames(commands.Cog):
                 else:
                     funcs.removecb(context.author.id, amount)
                     funcs.addgamble(context.author.id, amount)
-                    c.execute("INSERT INTO russianroulette(gameid, bet, player1, started) VALUES (?, ?, ?, 0)", (gameid, amount, context.author.id))
+                    c.execute("INSERT INTO russianroulette(gameid, amount, player1, started) VALUES (?, ?, ?, 0)", (gameid, amount, context.author.id))
                     conn.commit()
                     embed = discord.Embed(title="Russian Roulette", color=0xffa500)
                     embed.add_field(name="Game ID", value=str(gameid), inline=True)
@@ -112,6 +112,8 @@ class CBgames(commands.Cog):
                     c.execute("SELECT player2 FROM russianroulette WHERE gameid=?", (gameid,))
                     if str(c.fetchone()[0]) == "None":
                         await context.send(f"{context.author.mention} Not enough players joined to start the game. Cancelling and refunding CB.")
+                        c.execute("DELETE FROM russianroulette WHERE gameid=?", (gameid,))
+                        conn.commit()
                         funcs.addcb(context.author.id, amount)
                     else:
                         c.execute("UPDATE russianroulette SET started=1 WHERE gameid=?", (gameid,))
