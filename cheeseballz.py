@@ -60,6 +60,7 @@ class Cheeseballz(commands.Cog):
                 await context.message.add_reaction(self.client.check)
 
             elif operation == "-" or operation == "remove":
+                funcs.removecb(user.id, amount)
                 embed = discord.Embed(title="Cheeseballz Removed", color=0xff0000)
                 await self.client.logs.send(embed=fillembed(embed))
                 await context.message.add_reaction(self.client.check)

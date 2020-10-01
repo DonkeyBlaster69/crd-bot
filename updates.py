@@ -24,7 +24,7 @@ class Updates(commands.Cog):
                     try:
                         self.client.load_extension(extension)
                     except Exception as e:
-                        context.send(e)
+                        await context.send(e)
                 await context.message.add_reaction(self.client.check)
 
 

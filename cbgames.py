@@ -87,7 +87,7 @@ class CBgames(commands.Cog):
     async def russianroulette(self, context, operation: str = None, gameid: int = None, amount: int = None):
         bal = funcs.getbal(context.author.id)
         if operation is None or gameid is None:
-            await context.send(f"{context.author.mention} Command usage: `!rr <new/join/start> <gameid> <amount>`")
+            await context.send(f"{context.author.mention} Command usage: `!rr <new/join> <gameid> <amount>`")
         elif bal < amount:
             await funcs.insufficientcb(context, self.client)
         else:
@@ -95,6 +95,7 @@ class CBgames(commands.Cog):
                 funcs.removecb(context.author.id, amount)
                 funcs.addgamble(context.author.id, amount)
                 c.execute("INSERT INTO russianroulette(gameid, bet, player1, started) VALUES (?, ?, ?, 0)", (gameid, amount, context.author.id))
+                conn.commit()
                 embed = discord.Embed(title="Russian Roulette", color=0xffa500)
                 embed.add_field(name="Game ID", value=str(gameid), inline=True)
                 embed.add_field(name="Bet Amount", value=str(amount), inline=True)
