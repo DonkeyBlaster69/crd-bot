@@ -200,8 +200,7 @@ class CBgames(commands.Cog):
                         # After parsing, it adds a player if the game has an empty space
                         def attemptjoin(playernum):
                             c.execute(f"SELECT {playernum} FROM russianroulette WHERE gameid=?", (gameid,))
-                            print(str(c.fetchone()[0]))
-                            if str(c.fetchone()[0]) == 'None':
+                            if c.fetchone()[0] is None:
                                 c.execute("UPDATE russianroulette SET ?=? WHERE gameid=?", (playernum, context.author.id, gameid))
                                 conn.commit()
                                 funcs.removecb(context.author.id, amount)
