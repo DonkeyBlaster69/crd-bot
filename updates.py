@@ -15,7 +15,7 @@ class Updates(commands.Cog):
         await context.send(f"Cloning from `{repo_url}`.")
         cloneexit = os.system(f"git clone {repo_url} ~/crd-bot-temp")
         if cloneexit == 0:
-            await context.send("Cloned to ~/crd-bot-temp. Copying .py files.")
+            await context.send("Cloned to `~/crd-bot-temp`. Copying .py files.")
             copyexit = os.system("cd ~/crd-bot-temp && cp ~/crd-bot-temp/*.py ~/crd-bot")
             if copyexit == 0:
                 await context.send("Finished copying files. Reloading modules and deleting temporary clone folder.")
