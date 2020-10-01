@@ -186,9 +186,9 @@ class CBgames(commands.Cog):
                                 break
             elif operation == 'join':
                 c.execute("SELECT started FROM russianroulette WHERE gameid=?", (gameid,))
-                started = int(c.fetchone()[0])
+                started = str(c.fetchone()[0])
                 # If clause checks if game has started, else checks if they have the cb. If they do, keep going
-                if started == 1 or started is None:
+                if started == '1' or started == 'None':
                     await context.send(f"{context.author.mention} The specified game does not exist or has already started.")
                 else:
                     c.execute("SELECT amount FROM russianroulette WHERE gameid=?", (gameid,))
@@ -196,6 +196,7 @@ class CBgames(commands.Cog):
                     if bal < amount:
                         await funcs.insufficientcb(context, self.client)
                     else:
+                        print("passed bal check")
                         # Function that takes in "playernum" in the format of "player2" and so on, and attempts to parse the game
                         # After parsing, it adds a player if the game has an empty space
                         async def attemptjoin(playernum):
