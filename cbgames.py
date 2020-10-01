@@ -88,99 +88,100 @@ class CBgames(commands.Cog):
         bal = funcs.getbal(context.author.id)
         if operation is None or gameid is None:
             await context.send(f"{context.author.mention} Command usage: `!rr <new/join> <gameid> <amount>`")
-        elif bal < amount:
-            await funcs.insufficientcb(context, self.client)
         else:
             if operation == 'new':
-                funcs.removecb(context.author.id, amount)
-                funcs.addgamble(context.author.id, amount)
-                c.execute("INSERT INTO russianroulette(gameid, bet, player1, started) VALUES (?, ?, ?, 0)", (gameid, amount, context.author.id))
-                conn.commit()
-                embed = discord.Embed(title="Russian Roulette", color=0xffa500)
-                embed.add_field(name="Game ID", value=str(gameid), inline=True)
-                embed.add_field(name="Bet Amount", value=str(amount), inline=True)
-                embed.add_field(name="Player 1", value=context.author.mention, inline=False)
-                await context.send(embed=embed)
-                await asyncio.sleep(20)
-                # All the code above should have created a new game and inserted it into the SQL DB
-                # The code below should run after 20 seconds has passed from creating the new game
-                # That should give enough time for people in that channel to join the game if they want
-
-                # First bit here checks if there are actually other players in the game
-                # If not, it deletes the game and refunds the original CB taken
-                c.execute("SELECT player2 FROM russianroulette WHERE gameid=?", (gameid,))
-                if str(c.fetchone()[0]) is None:
-                    await context.send(f"{context.author.mention} Not enough players joined to start the game. Cancelling and refunding CB.")
-                    funcs.addcb(context.author.id, amount)
+                if bal < amount:
+                    await funcs.insufficientcb(context, self.client)
                 else:
-                    c.execute("UPDATE russianroulette SET started=1 WHERE gameid=?", (gameid,))
+                    funcs.removecb(context.author.id, amount)
+                    funcs.addgamble(context.author.id, amount)
+                    c.execute("INSERT INTO russianroulette(gameid, bet, player1, started) VALUES (?, ?, ?, 0)", (gameid, amount, context.author.id))
                     conn.commit()
-                    await context.send(f"Starting game {gameid}.")
-                    players = []
+                    embed = discord.Embed(title="Russian Roulette", color=0xffa500)
+                    embed.add_field(name="Game ID", value=str(gameid), inline=True)
+                    embed.add_field(name="Bet Amount", value=str(amount), inline=True)
+                    embed.add_field(name="Player 1", value=context.author.mention, inline=False)
+                    await context.send(embed=embed)
+                    await asyncio.sleep(20)
+                    # All the code above should have created a new game and inserted it into the SQL DB
+                    # The code below should run after 20 seconds has passed from creating the new game
+                    # That should give enough time for people in that channel to join the game if they want
 
-                    # Goes through all the players for that game in the SQL DB
-                    # Players are appended to list "players"
-                    # Players are counted and stored to "originalPlayers"
-                    for i in range(1, 7):
-                        playernum = 'player' + str(i)
-                        c.execute("SELECT ? FROM russianroulette WHERE gameid=?", (playernum, gameid))
-                        player = str(c.fetchone()[0])
-                        if player != 'None':
-                            players.append(player)
-                    originalPlayers = len(players)
+                    # First bit here checks if there are actually other players in the game
+                    # If not, it deletes the game and refunds the original CB taken
+                    c.execute("SELECT player2 FROM russianroulette WHERE gameid=?", (gameid,))
+                    if str(c.fetchone()[0]) is None:
+                        await context.send(f"{context.author.mention} Not enough players joined to start the game. Cancelling and refunding CB.")
+                        funcs.addcb(context.author.id, amount)
+                    else:
+                        c.execute("UPDATE russianroulette SET started=1 WHERE gameid=?", (gameid,))
+                        conn.commit()
+                        await context.send(f"Starting game {gameid}.")
+                        players = []
 
-                    # Refresh chamber function resets the "bullets" for the list of players
-                    # This uses len(players) instead of originalPlayers because we need to reset when players die
-                    # Returns list of 0's and 1's for bullets
-                    def refreshchamber():
-                        chamberfunction = []
-                        for i in range(len(players)):
-                            chamberfunction.append(random.randint(0, 1))
-                        return chamberfunction
-                    chamber = refreshchamber()
+                        # Goes through all the players for that game in the SQL DB
+                        # Players are appended to list "players"
+                        # Players are counted and stored to "originalPlayers"
+                        for i in range(1, 7):
+                            playernum = 'player' + str(i)
+                            c.execute("SELECT ? FROM russianroulette WHERE gameid=?", (playernum, gameid))
+                            player = str(c.fetchone()[0])
+                            if player != 'None':
+                                players.append(player)
+                        originalPlayers = len(players)
 
-                    # This function takes "fireindex" and uses that to sync up the "players" list and the "chamber" list
-                    # If the "chamber" list returns a 0, that player survives
-                    # If the "chamber" list returns a 1, that player is shot and the function returns the player number that was shot
-                    async def fire(fireindex):
-                        await asyncio.sleep(2)
-                        if chamber[fireindex] == 0:
-                            await context.send(f"<@{players[fireindex]}> pulls the trigger and... survives!")
-                        else:
-                            await context.send(f"<@{players[fireindex]}> pulls the trigger and... gets shot!")
-                            return fireindex
-
-                    # First for loop goes through all the remaining players and determines if they should be removed or not
-                    toRemove = []
-                    while True:
+                        # Refresh chamber function resets the "bullets" for the list of players
+                        # This uses len(players) instead of originalPlayers because we need to reset when players die
+                        # Returns list of 0's and 1's for bullets
+                        def refreshchamber():
+                            chamberfunction = []
+                            for i in range(len(players)):
+                                chamberfunction.append(random.randint(0, 1))
+                            return chamberfunction
                         chamber = refreshchamber()
-                        for i in range(len(players)):
-                            pending = await fire(i)
-                            if pending is not None:
-                                toRemove.append(pending)
 
-                        # Checks if the toRemove list is empty. If not, remove the players in it and clear it
-                        if toRemove != []:
-                            toRemove.reverse()
-                            for i in toRemove:
-                                players.pop(i)
-                            toRemove = []
+                        # This function takes "fireindex" and uses that to sync up the "players" list and the "chamber" list
+                        # If the "chamber" list returns a 0, that player survives
+                        # If the "chamber" list returns a 1, that player is shot and the function returns the player number that was shot
+                        async def fire(fireindex):
+                            await asyncio.sleep(2)
+                            if chamber[fireindex] == 0:
+                                await context.send(f"<@{players[fireindex]}> pulls the trigger and... survives!")
+                            else:
+                                await context.send(f"<@{players[fireindex]}> pulls the trigger and... gets shot!")
+                                return fireindex
 
-                        # Checks if there are one or zero players left in game
-                        if len(players) == 0:
-                            await context.send(f"No one won game {gameid}.")
-                            c.execute("DELETE FROM russianroulette WHERE gameid=?", (gameid,))
-                            conn.commit()
-                            break
-                        elif len(players) == 1:
-                            winner = int(players[0])
-                            await context.send(f"<@{winner}> has won the game!")
-                            toAdd = amount * originalPlayers
-                            funcs.addcb(winner, toAdd)
-                            await context.send(f"{toAdd} cheeseballz has been deposited to <@{winner}>'s account.")
-                            c.execute("DELETE FROM russianroulette WHERE gameid=", (gameid,))
-                            conn.commit()
-                            break
+                        # First for loop goes through all the remaining players and determines if they should be removed or not
+                        toRemove = []
+                        while True:
+                            chamber = refreshchamber()
+                            for i in range(len(players)):
+                                pending = await fire(i)
+                                if pending is not None:
+                                    toRemove.append(pending)
+
+                            # Checks if the toRemove list is empty. If not, remove the players in it and clear it
+                            if toRemove != []:
+                                toRemove.reverse()
+                                for i in toRemove:
+                                    players.pop(i)
+                                toRemove = []
+
+                            # Checks if there are one or zero players left in game
+                            if len(players) == 0:
+                                await context.send(f"No one won game {gameid}.")
+                                c.execute("DELETE FROM russianroulette WHERE gameid=?", (gameid,))
+                                conn.commit()
+                                break
+                            elif len(players) == 1:
+                                winner = int(players[0])
+                                await context.send(f"<@{winner}> has won the game!")
+                                toAdd = amount * originalPlayers
+                                funcs.addcb(winner, toAdd)
+                                await context.send(f"{toAdd} cheeseballz has been deposited to <@{winner}>'s account.")
+                                c.execute("DELETE FROM russianroulette WHERE gameid=", (gameid,))
+                                conn.commit()
+                                break
             elif operation == 'join':
                 c.execute("SELECT started FROM russianroulette WHERE gameid=?", (gameid,))
                 started = int(c.fetchone()[0])
