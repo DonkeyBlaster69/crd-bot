@@ -126,7 +126,7 @@ class CBgames(commands.Cog):
                         # Players are counted and stored to "originalPlayers"
                         for i in range(1, 7):
                             playernum = 'player' + str(i)
-                            c.execute("SELECT ? FROM russianroulette WHERE gameid=?", (playernum, gameid))
+                            c.execute(f"SELECT {playernum} FROM russianroulette WHERE gameid=?", (gameid,))
                             player = str(c.fetchone()[0])
                             if player != 'None':
                                 players.append(player)
