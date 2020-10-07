@@ -204,6 +204,10 @@ class Staff(commands.Cog):
             elif overseer in member.roles:
                 overseerList.append(f" - {member.mention}: {weekevents}")
         # logic for empty lists
+        if overseerList == []:
+            overseerMessage = "Apparently we don't have an overseer at the moment."
+        else:
+            overseerMessage = re.sub("[,]", "\n", re.sub("[()'\[\]]", "", str(overseerList)))
         if executiveList == []:
             executiveMessage = "Currently no Executive Managers."
         else:
@@ -238,7 +242,7 @@ class Staff(commands.Cog):
             pendingMessage = re.sub("[,]", "\n", re.sub("[()'\[\]]", "", str(pendingList)))
         # move into embed and send -----------------------------------------------
         embed = discord.Embed(title="Current Staff List", color=0x8100c2)
-        embed.add_field(name="Overseer", value=re.sub("[()'\[\]]", "", str(overseerList)), inline=False)
+        embed.add_field(name="Overseer", value=overseerMessage, inline=False)
         embed.add_field(name="Director", value=re.sub("[()'\[\]]", "", str(directorList)), inline=False)
         embed.add_field(name="Deputy Director", value=re.sub("[()'\[\]]", "", str(deputyList)), inline=False)
         embed.add_field(name="Assistant Deputy Director", value=re.sub("[()'\[\]]", "", str(assistList)), inline=False)
