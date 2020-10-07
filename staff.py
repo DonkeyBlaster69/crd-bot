@@ -211,7 +211,7 @@ class Staff(commands.Cog):
         if assistList == []:
             assistMessage = "Currently no Assistant Deputy Directors."
         else:
-            assistMessage = re.sub("[,]", "\n", re.sub("[()'\[\]]", "", str(assistMessage)))
+            assistMessage = re.sub("[,]", "\n", re.sub("[()'\[\]]", "", str(assistList)))
         if executiveList == []:
             executiveMessage = "Currently no Executive Managers."
         else:
