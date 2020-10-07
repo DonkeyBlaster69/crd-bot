@@ -208,6 +208,10 @@ class Staff(commands.Cog):
             overseerMessage = "Apparently we don't have an overseer at the moment."
         else:
             overseerMessage = re.sub("[,]", "\n", re.sub("[()'\[\]]", "", str(overseerList)))
+        if assistList == []:
+            assistMessage = "Currently no Assistant Deputy Directors."
+        else:
+            assistMessage = re.sub("[,]", "\n", re.sub("[()'\[\]]", "", str(assistMessage)))
         if executiveList == []:
             executiveMessage = "Currently no Executive Managers."
         else:
@@ -245,7 +249,7 @@ class Staff(commands.Cog):
         embed.add_field(name="Overseer", value=overseerMessage, inline=False)
         embed.add_field(name="Director", value=re.sub("[()'\[\]]", "", str(directorList)), inline=False)
         embed.add_field(name="Deputy Director", value=re.sub("[()'\[\]]", "", str(deputyList)), inline=False)
-        embed.add_field(name="Assistant Deputy Director", value=re.sub("[()'\[\]]", "", str(assistList)), inline=False)
+        embed.add_field(name="Assistant Deputy Director", value=assistMessage, inline=False)
         embed.add_field(name="Bot Developer", value=re.sub("[()'\[\]]", "", str(botList)), inline=False)
         embed.add_field(name="Executive Manager", value=executiveMessage, inline=False)
         embed.add_field(name="Advisory Board", value=advisoryMessage, inline=False)
