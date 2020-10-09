@@ -179,29 +179,29 @@ class Staff(commands.Cog):
             weekevents = re.sub("[()',\[\]]", "", str(c.fetchall()))
             if pending in member.roles:
                 pendingList.append(f" - {member.mention}: {weekevents}")
-            elif probationary in member.roles:
+            if probationary in member.roles:
                 probationaryList.append(f" - {member.mention}: {weekevents}")
-            elif manager in member.roles:
+            if manager in member.roles:
                 managerList.append(f" - {member.mention}: {weekevents}")
-            elif senior in member.roles:
+            if senior in member.roles:
                 seniorList.append(f" - {member.mention}: {weekevents}")
-            elif chief in member.roles:
+            if chief in member.roles:
                 chiefList.append(f" - {member.mention}: {weekevents}")
-            elif head in member.roles:
+            if head in member.roles:
                 headList.append(f" - {member.mention}: {weekevents}")
-            elif advisory in member.roles:
+            if advisory in member.roles:
                 advisoryList.append(f" - {member.mention}: {weekevents}")
-            elif executive in member.roles:
+            if executive in member.roles:
                 executiveList.append(f" - {member.mention}: {weekevents}")
-            elif bot in member.roles:
+            if bot in member.roles:
                 botList.append(f" - {member.mention}: {weekevents}")
-            elif assist in member.roles:
+            if assist in member.roles:
                 assistList.append(f" - {member.mention}: {weekevents}")
-            elif deputy in member.roles:
+            if deputy in member.roles:
                 deputyList.append(f" - {member.mention}: {weekevents}")
-            elif director in member.roles:
+            if director in member.roles:
                 directorList.append(f" - {member.mention}: {weekevents}")
-            elif overseer in member.roles:
+            if overseer in member.roles:
                 overseerList.append(f" - {member.mention}: {weekevents}")
         # logic for empty lists
         if overseerList == []:
