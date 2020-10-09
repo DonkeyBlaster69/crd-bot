@@ -37,7 +37,7 @@ class Staff(commands.Cog):
                     c.execute("SELECT weekevents FROM stafftable WHERE userid=?", (message.author.id,))
                     c.execute("UPDATE stafftable SET weekevents=? WHERE userid=?", (int(c.fetchone()[0]) + 1, message.author.id))
                     c.execute("SELECT totalevents FROM stafftable WHERE userid=?", (message.author.id,))
-                    c.execute("UPDATE stafftable SET totalevents=? WHERE userid=?",(int(c.fetchone()[0]) + 1, message.author.id))
+                    c.execute("UPDATE stafftable SET totalevents=? WHERE userid=?", (int(c.fetchone()[0]) + 1, message.author.id))
                     conn.commit()
                     await message.add_reaction(self.client.check)
 
