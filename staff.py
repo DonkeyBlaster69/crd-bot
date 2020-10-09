@@ -208,6 +208,14 @@ class Staff(commands.Cog):
             overseerMessage = "Apparently we don't have an overseer at the moment."
         else:
             overseerMessage = re.sub("[,]", "\n", re.sub("[()'\[\]]", "", str(overseerList)))
+        if directorList == []:
+            directorMessage = "Apparently we don't have a director at the moment."
+        else:
+            directorMessage = re.sub("[,]", "\n", re.sub("[()'\[\]]", "", str(directorList)))
+        if deputyList == []:
+            deputyMessage = "Currently no Deputy Directors."
+        else:
+            deputyMessage = re.sub("[,]", "\n", re.sub("[()'\[\]]", "", str(deputyList)))
         if assistList == []:
             assistMessage = "Currently no Assistant Deputy Directors."
         else:
@@ -247,8 +255,8 @@ class Staff(commands.Cog):
         # move into embed and send -----------------------------------------------
         embed = discord.Embed(title="Current Staff List", color=0x8100c2)
         embed.add_field(name="Overseer", value=overseerMessage, inline=False)
-        embed.add_field(name="Director", value=re.sub("[()'\[\]]", "", str(directorList)), inline=False)
-        embed.add_field(name="Deputy Director", value=re.sub("[()'\[\]]", "", str(deputyList)), inline=False)
+        embed.add_field(name="Director", value=directorMessage, inline=False)
+        embed.add_field(name="Deputy Director", value=deputyMessage, inline=False)
         embed.add_field(name="Assistant Deputy Director", value=assistMessage, inline=False)
         embed.add_field(name="Bot Developer", value=re.sub("[()'\[\]]", "", str(botList)), inline=False)
         embed.add_field(name="Executive Manager", value=executiveMessage, inline=False)
