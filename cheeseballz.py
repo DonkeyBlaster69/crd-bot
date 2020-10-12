@@ -551,9 +551,9 @@ Click the checkmark to continue once you're ready.""")
             userlist = users.split()
             for userid in userlist:
                 if operation == '+':
-                    funcs.addcb(amount, userid)
+                    funcs.addcb(userid, amount)
                 elif operation == '-':
-                    funcs.removecb(amount, userid)
+                    funcs.removecb(userid, amount)
                 else:
                     await context.send(f"{context.author.mention} Command usage: `!mcb <+/-> <amount> <@users>`")
                     break
