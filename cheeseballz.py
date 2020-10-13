@@ -156,10 +156,10 @@ class Cheeseballz(commands.Cog):
         embed = discord.Embed(title="Shop", description="Purchase items with !buy <number>, sell items with !sell <number>", color=0xb200b2)
         embed.set_footer(text=f"Your balance: {balance}")
         embed.add_field(name="1. Nscheeseballz Chat Permissions", value="Buy: 20,000 cb | Sell: 19,000 cb", inline=False)
-        embed.add_field(name="2. Omega Special Role", value="Buy: 5,000 cb | Sell: 4,500 cb", inline=False)
-        embed.add_field(name="3. ;) role", value="Buy: 1,000 cb | Sell: 900 cb", inline=False)
+        # embed.add_field(name="2. Omega Special Role", value="Buy: 5,000 cb | Sell: 4,500 cb", inline=False)
+        # embed.add_field(name="3. ;) role", value="Buy: 1,000 cb | Sell: 900 cb", inline=False)
         embed.add_field(name="4. DJ role", value="Buy: 5,000 cb | Sell: 4,500 cb", inline=False)
-        embed.add_field(name="5. Exclusive giveaway channel role", value="Buy: 9,000 cb | Sell: 8,100 cb", inline=False)
+        # embed.add_field(name="5. Exclusive giveaway channel role", value="Buy: 9,000 cb | Sell: 8,100 cb", inline=False)
         embed.add_field(name="6. uwu role", value="Buy: 2,000 cb | Sell: 1,800 cb", inline=False)
         embed.add_field(name="7. owo role", value="Buy: 2,000 cb | Sell: 1,800 cb", inline=False)
         embed.add_field(name="8. Custom role", value="Buy: 30,000 cb", inline=False)
@@ -169,10 +169,7 @@ class Cheeseballz(commands.Cog):
     @commands.command(name='buy', aliases=['purchase'])
     async def buy(self, context, selection: int = 0):
         nscheeseballz = self.client.crdguild.get_role(674479777444265985)
-        omega = self.client.crdguild.get_role(674478322687672351)
-        wink = self.client.crdguild.get_role(674481196239028235)
         dj = self.client.crdguild.get_role(688601672766849025)
-        richman = self.client.crdguild.get_role(704053604172038184)
         uwu = self.client.crdguild.get_role(714783199170920508)
         owo = self.client.crdguild.get_role(725292693487485018)
         # --
@@ -192,14 +189,14 @@ class Cheeseballz(commands.Cog):
 
         if selection == 1:
             await role(nscheeseballz, 20000)
-        elif selection == 2:
-            await role(omega, 5000)
-        elif selection == 3:
-            await role(wink, 1000)
+        # elif selection == 2:
+            # await role(omega, 5000)
+        # elif selection == 3:
+            # await role(wink, 1000)
         elif selection == 4:
             await role(dj, 5000)
-        elif selection == 5:
-            await role(richman, 9000)
+        # elif selection == 5:
+            # await role(richman, 9000)
         elif selection == 6:
             await role(uwu, 2000)
         elif selection == 7:
@@ -290,10 +287,7 @@ Click the checkmark to continue once you're ready.""")
     @commands.command(name='sell', aliases=['refund'])
     async def sell(self, context, selection: int = 0):
         nscheeseballz = self.client.crdguild.get_role(674479777444265985)
-        omega = self.client.crdguild.get_role(674478322687672351)
-        wink = self.client.crdguild.get_role(674481196239028235)
         dj = self.client.crdguild.get_role(688601672766849025)
-        richman = self.client.crdguild.get_role(704053604172038184)
         uwu = self.client.crdguild.get_role(714783199170920508)
         owo = self.client.crdguild.get_role(725292693487485018)
 
@@ -311,14 +305,14 @@ Click the checkmark to continue once you're ready.""")
 
         if selection == 1:
             await role(nscheeseballz, 19000)
-        elif selection == 2:
-            await role(omega, 4500)
-        elif selection == 3:
-            await role(wink, 900)
+        # elif selection == 2:
+            # await role(omega, 4500)
+        # elif selection == 3:
+            # await role(wink, 900)
         elif selection == 4:
             await role(dj, 4500)
-        elif selection == 5:
-            await role(richman, 8100)
+        # elif selection == 5:
+            # await role(richman, 8100)
         elif selection == 6:
             await role(uwu, 1800)
         elif selection == 7:
