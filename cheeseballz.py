@@ -140,7 +140,7 @@ class Cheeseballz(commands.Cog):
         defaulttime = "2020-01-01 00:00:00.000000"
         prevbal = funcs.getbal(context.author.id)
         c.execute("DELETE FROM cheeseballztable WHERE userid=?", (context.author.id,))
-        c.execute("INSERT INTO cheeseballztable(userid, cheeseballz, upgradelevel, daily, weekly, monthly) VALUES (?, 0, 0, ?, ?, ?)", (context.author.id, defaulttime, defaulttime, defaulttime))
+        c.execute("INSERT INTO cheeseballztable(userid, cheeseballz, upgradelevel, daily, weekly, monthly, totalgamble) VALUES (?, 0, 0, ?, ?, ?, 0)", (context.author.id, defaulttime, defaulttime, defaulttime))
         conn.commit()
         await context.message.add_reaction(self.client.check)
         embed = discord.Embed(title="Account reset", color=0xff0000)
