@@ -77,7 +77,7 @@ class CBgames(commands.Cog):
         else:
             funcs.addgamble(context.author.id, amount)
             funcs.removecb(context.author.id, amount)
-            if random.choice([True, False]) is True:
+            if random.choice([True, False]):
                 await context.send(f"{context.author.mention} Congrats! Received {amount*2} cheeseballz back.")
                 funcs.addcb(context.author.id, amount * 2)
             else:
