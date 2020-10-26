@@ -73,7 +73,7 @@ class Cheeseballz(commands.Cog):
             else:
                 await context.send(f"{context.author.mention} Command usage: `!cb <+/-/set> <@user> <amount> <reason>`")
 
-    @commands.command(name='balance', aliases=['bal', 'profile'])
+    @commands.command(name='balance', aliases=['bal', 'profile', 'b'])
     async def balance(self, context, *, user: discord.Member = None):
         async def getbal(user):
             bal = funcs.getbal(user.id)
