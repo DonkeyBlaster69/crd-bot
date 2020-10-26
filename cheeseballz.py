@@ -194,7 +194,7 @@ class Cheeseballz(commands.Cog):
         elif selection == 4:
             await role(owo, 2000)
         elif selection == 5:
-            await context.send(f"{context.author.mention} How many tokens would you like? The maximum per transaction is 150,000 tokens.")
+            await context.send(f"{context.author.mention} How many tokens would you like? The maximum is 150,000 tokens and the minimum is 5,000 tokens.")
 
             def amtcheck(m):
                 return m.author == context.author and m.channel == context.channel
@@ -204,7 +204,9 @@ class Cheeseballz(commands.Cog):
                 tokens = int(amtmsg.content)
                 cost = int(round(tokens/10))
                 if tokens > 150000:
-                    await context.send(f"{context.author.mention} The maximum amount of tokens per transaction is 150,000.")
+                    await context.send(f"{context.author.mention} The maximum is 150,000 tokens and the minimum is 5,000 tokens.")
+                elif tokens < 5000:
+                    await context.send(f"{context.author.mention} The maximum is 150,000 tokens and the minimum is 5,000 tokens.")
                 else:
                     bal = funcs.getbal(context.author.id)
                     if bal < cost:
