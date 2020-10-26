@@ -156,14 +156,12 @@ class Cheeseballz(commands.Cog):
         embed = discord.Embed(title="Shop", description="Purchase items with !buy <number>, sell items with !sell <number>", color=0xb200b2)
         embed.set_footer(text=f"Your balance: {balance}")
         embed.add_field(name="1. Nscheeseballz Chat Permissions", value="Buy: 20,000 cb | Sell: 19,000 cb", inline=False)
-        # embed.add_field(name="2. Omega Special Role", value="Buy: 5,000 cb | Sell: 4,500 cb", inline=False)
-        # embed.add_field(name="3. ;) role", value="Buy: 1,000 cb | Sell: 900 cb", inline=False)
-        embed.add_field(name="4. DJ role", value="Buy: 5,000 cb | Sell: 4,500 cb", inline=False)
-        # embed.add_field(name="5. Exclusive giveaway channel role", value="Buy: 9,000 cb | Sell: 8,100 cb", inline=False)
-        embed.add_field(name="6. uwu role", value="Buy: 2,000 cb | Sell: 1,800 cb", inline=False)
-        embed.add_field(name="7. owo role", value="Buy: 2,000 cb | Sell: 1,800 cb", inline=False)
-        embed.add_field(name="8. Custom role", value="Buy: 30,000 cb", inline=False)
-        embed.add_field(name=f"9. Increase upgrade level - Level {upgradelevel} to {upgradelevel + 1}", value="Buy: 10,000 cb", inline=False)
+        embed.add_field(name="2. DJ role", value="Buy: 5,000 cb | Sell: 4,500 cb", inline=False)
+        embed.add_field(name="3. uwu role", value="Buy: 2,000 cb | Sell: 1,800 cb", inline=False)
+        embed.add_field(name="4. owo role", value="Buy: 2,000 cb | Sell: 1,800 cb", inline=False)
+        embed.add_field(name="5. DTRP Tokens", value="Exchange rate is 1 cb to 10 tokens.", inline=False)
+        embed.add_field(name="6. Custom role", value="Buy: 30,000 cb", inline=False)
+        embed.add_field(name=f"7. Increase upgrade level - Level {upgradelevel} to {upgradelevel + 1}", value="Buy: 10,000 cb", inline=False)
         await context.send(embed=embed)
 
     @commands.command(name='buy', aliases=['purchase'])
@@ -183,25 +181,44 @@ class Cheeseballz(commands.Cog):
                 await context.send(f"{context.author.mention} {self.client.check} Purchase successful.")
                 await context.author.add_roles(role, reason="Purchased from cheeseballz shop")
                 embed = discord.Embed(title="Role Purchased", color=0x00ff00)
-                embed.add_field(name="User", value=context.author.mention, inline=False)
-                embed.add_field(name="Role", value=role.mention, inline=False)
+                embed.add_field(name="User", value=context.author.mention, inline=True)
+                embed.add_field(name="Role", value=role.mention, inline=True)
                 await self.client.logs.send(embed=embed)
 
         if selection == 1:
             await role(nscheeseballz, 20000)
-        # elif selection == 2:
-            # await role(omega, 5000)
-        # elif selection == 3:
-            # await role(wink, 1000)
-        elif selection == 4:
+        elif selection == 2:
             await role(dj, 5000)
-        # elif selection == 5:
-            # await role(richman, 9000)
-        elif selection == 6:
+        elif selection == 3:
             await role(uwu, 2000)
-        elif selection == 7:
+        elif selection == 4:
             await role(owo, 2000)
-        elif selection == 8:
+        elif selection == 5:
+            await context.send(f"{context.author.mention} How many tokens would you like? The maximum per transaction is 150,000 tokens.")
+
+            def amtcheck(m):
+                return m.author == context.author and m.channel == context.channel
+
+            amtmsg = await self.client.wait_for("message", check=amtcheck)
+            try:
+                intamt = int(amtmsg)
+                if intamt > 150000:
+                    await context.send(f"{context.author.mention} The maximum amount of tokens per transaction is 150,000.")
+                else:
+                    bal = funcs.getbal(context.author.id)
+                    if bal < (intamt/10):
+                        await funcs.insufficientcb(context, self.client)
+                    else:
+                        funcs.removecb(context.author.id, intamt/10)
+                        embed = discord.Embed(title="Tokens purchased", color=0xffff00)
+                        embed.add_field(name="User", value=context.author.mention, inline=True)
+                        embed.add_field(name="Amount", value=intamt, inline=True)
+                        await self.client.logs.send("<@291661685863874560>", embed=embed)
+                        await context.send(f"{context.author.mention} A staff member will DM you soon for you to pick up your tokens.")
+            except ValueError:
+                await context.send(f"{context.author.mention} Could not parse an amount from {amtmsg.content}. Please try again.")
+
+        elif selection == 6:
             if bal < 30000:
                 await funcs.insufficientcb(context, self.client)
             else:
@@ -267,7 +284,7 @@ Click the checkmark to continue once you're ready.""")
                         await context.send(f"{context.author.mention} One or more fields had an invalid input. Try again.")
                 except asyncio.TimeoutError:
                     await context.send(f"{context.author.mention} Timed out, cancelling.")
-        elif selection == 9:
+        elif selection == 7:
             if bal < 10000:
                 await context.send(f"{context.author.mention} {self.client.x} Not enough cheeseballz.")
             else:
