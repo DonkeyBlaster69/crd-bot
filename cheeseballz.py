@@ -201,21 +201,22 @@ class Cheeseballz(commands.Cog):
 
             amtmsg = await self.client.wait_for("message", check=amtcheck)
             try:
-                intamt = int(amtmsg.content)
-                if intamt > 150000:
+                tokens = int(amtmsg.content)
+                cost = int(tokens/10)
+                if tokens > 150000:
                     await context.send(f"{context.author.mention} The maximum amount of tokens per transaction is 150,000.")
                 else:
                     bal = funcs.getbal(context.author.id)
-                    if bal < (intamt/10):
+                    if bal < cost:
                         await funcs.insufficientcb(context, self.client)
                     else:
-                        funcs.removecb(context.author.id, intamt/10)
+                        funcs.removecb(context.author.id, int(tokens/10))
                         embed = discord.Embed(title="Tokens purchased", color=0xffff00)
                         embed.add_field(name="User", value=context.author.mention, inline=True)
-                        embed.add_field(name="Amount", value=intamt, inline=True)
-                        embed.add_field(name="Cost", value=intamt/10, inline=True)
+                        embed.add_field(name="Amount", value=tokens, inline=True)
+                        embed.add_field(name="Cost", value=cost, inline=True)
                         await self.client.logs.send("<@291661685863874560>", embed=embed)
-                        await context.send(f"{context.author.mention} A staff member will DM you soon for you to pick up your tokens. {intamt/10} cheeseballz has been deducted.")
+                        await context.send(f"{context.author.mention} A staff member will DM you soon for you to pick up your tokens. {cost} cheeseballz has been deducted.")
             except ValueError:
                 await context.send(f"{context.author.mention} Could not parse an amount from {amtmsg.content}. Please try again.")
 
