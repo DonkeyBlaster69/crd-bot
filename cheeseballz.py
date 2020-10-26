@@ -201,7 +201,7 @@ class Cheeseballz(commands.Cog):
 
             amtmsg = await self.client.wait_for("message", check=amtcheck)
             try:
-                intamt = int(amtmsg)
+                intamt = int(amtmsg.content)
                 if intamt > 150000:
                     await context.send(f"{context.author.mention} The maximum amount of tokens per transaction is 150,000.")
                 else:
