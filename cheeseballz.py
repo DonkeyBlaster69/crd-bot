@@ -202,7 +202,7 @@ class Cheeseballz(commands.Cog):
             amtmsg = await self.client.wait_for("message", check=amtcheck)
             try:
                 tokens = int(amtmsg.content)
-                cost = int(tokens/10)
+                cost = int(round(tokens/10))
                 if tokens > 150000:
                     await context.send(f"{context.author.mention} The maximum amount of tokens per transaction is 150,000.")
                 else:
@@ -210,7 +210,7 @@ class Cheeseballz(commands.Cog):
                     if bal < cost:
                         await funcs.insufficientcb(context, self.client)
                     else:
-                        funcs.removecb(context.author.id, int(tokens/10))
+                        funcs.removecb(context.author.id, cost)
                         embed = discord.Embed(title="Tokens purchased", color=0xffff00)
                         embed.add_field(name="User", value=context.author.mention, inline=True)
                         embed.add_field(name="Amount", value=tokens, inline=True)
