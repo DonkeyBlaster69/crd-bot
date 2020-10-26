@@ -213,6 +213,7 @@ class Cheeseballz(commands.Cog):
                         embed = discord.Embed(title="Tokens purchased", color=0xffff00)
                         embed.add_field(name="User", value=context.author.mention, inline=True)
                         embed.add_field(name="Amount", value=intamt, inline=True)
+                        embed.add_field(name="Cost", value=intamt/10, inline=True)
                         await self.client.logs.send("<@291661685863874560>", embed=embed)
                         await context.send(f"{context.author.mention} A staff member will DM you soon for you to pick up your tokens. {intamt/10} cheeseballz has been deducted.")
             except ValueError:
