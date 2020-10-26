@@ -181,7 +181,7 @@ class CBgames(commands.Cog):
                                 toAdd = amount * originalPlayers
                                 funcs.addcb(winner, toAdd)
                                 await context.send(f"{toAdd} cheeseballz has been deposited to <@{winner}>'s account.")
-                                c.execute("DELETE FROM russianroulette WHERE gameid=", (gameid,))
+                                c.execute("DELETE FROM russianroulette WHERE gameid=?", (gameid,))
                                 conn.commit()
                                 break
             elif operation == 'join':
