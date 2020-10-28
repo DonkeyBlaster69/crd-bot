@@ -514,7 +514,7 @@ Click the checkmark to continue once you're ready.""")
                     if cbexcluded in member.roles:
                         pass
                     else:
-                        c.execute("SELECT totalgamble FROM cheeseballztable WHERE userid=?", (userdict[userid]))
+                        c.execute(f"SELECT totalgamble FROM cheeseballztable WHERE userid={userdict[userid]}")
                         userdict[userid] = c.fetchone()[0]
                         userlist.append(userid)
                 except AttributeError:
