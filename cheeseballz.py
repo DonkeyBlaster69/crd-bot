@@ -514,7 +514,8 @@ Click the checkmark to continue once you're ready.""")
                     if cbexcluded in member.roles:
                         pass
                     else:
-                        userdict[userid] = funcs.getbal(userid)
+                        c.execute("SELECT totalgamble FROM cheeseballztable WHERE userid=?", (userdict[userid]))
+                        userdict[userid] = c.fetchone()[0]
                         userlist.append(userid)
                 except AttributeError:
                     pass
