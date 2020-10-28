@@ -327,14 +327,8 @@ Click the checkmark to continue once you're ready.""")
 
         if selection == 1:
             await role(nscheeseballz, 19000)
-        # elif selection == 2:
-            # await role(omega, 4500)
-        # elif selection == 3:
-            # await role(wink, 900)
         elif selection == 4:
             await role(dj, 4500)
-        # elif selection == 5:
-            # await role(richman, 8100)
         elif selection == 6:
             await role(uwu, 1800)
         elif selection == 7:
