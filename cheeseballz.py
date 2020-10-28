@@ -118,12 +118,12 @@ class Cheeseballz(commands.Cog):
             embed = discord.Embed(title="", color=0x800080)
             embed.set_author(name=user, icon_url=user.avatar_url)
             embed.add_field(name="Date joined", value=user.joined_at.date(), inline=True)
-            embed.add_field(name="Join position", value=int(joindates.index(uniquedate)) + 1, inline=True)
+            embed.add_field(name="Join position", value=f"#{int(joindates.index(uniquedate)) + 1}", inline=True)
             embed.add_field(name="\u200b", value="\u200b", inline=True)
-            embed.add_field(name="Balance", value=bal, inline=True)
+            embed.add_field(name="Balance", value=f"{bal} cb", inline=True)
             embed.add_field(name="Upgrade level", value=upgradelevel, inline=True)
             embed.add_field(name="\u200b", value="\u200b", inline=True)
-            embed.add_field(name="Lifetime amount gambled", value=totalgamble, inline=False)
+            embed.add_field(name="Lifetime amount gambled", value=f"{totalgamble} cb", inline=False)
             embed.add_field(name="Time until next !daily", value=dailytimeleft, inline=False)
             embed.add_field(name="Time until next !weekly", value=weeklytimeleft, inline=False)
             embed.add_field(name="Time until next !monthly", value=monthlytimeleft, inline=False)
@@ -215,8 +215,8 @@ class Cheeseballz(commands.Cog):
                         funcs.removecb(context.author.id, cost)
                         embed = discord.Embed(title="Tokens purchased", color=0xffff00)
                         embed.add_field(name="User", value=context.author.mention, inline=True)
-                        embed.add_field(name="Amount", value=tokens, inline=True)
-                        embed.add_field(name="Cost", value=cost, inline=True)
+                        embed.add_field(name="Amount", value=f"{tokens} tokens", inline=True)
+                        embed.add_field(name="Cost", value=f"{cost} cb", inline=True)
                         await self.client.logs.send("<@291661685863874560>", embed=embed)
                         await context.send(f"{context.author.mention} A staff member will DM you soon for you to pick up your tokens. {cost} cheeseballz has been deducted.")
             except ValueError:
@@ -254,7 +254,7 @@ Click the checkmark to continue once you're ready.""")
                     reaction, user = await self.client.wait_for('reaction_add', check=reactionresponsecheck, timeout=60)
                     if reaction.emoji == self.client.check:
                         hoist = True
-                    elif reaction.emoji == self.client.x:
+                    else:
                         hoist = False
                     mentionablequestion = await context.send("Should the role be mentionable by everyone?")
                     await mentionablequestion.add_reaction(self.client.check)
@@ -262,7 +262,7 @@ Click the checkmark to continue once you're ready.""")
                     reaction, user = await self.client.wait_for('reaction_add', check=reactionresponsecheck, timeout=60)
                     if reaction.emoji == self.client.check:
                         mentionable = True
-                    elif reaction.emoji == self.client.x:
+                    else:
                         mentionable = False
                     await context.send(f"{context.author.mention} Creating role `{rolenamemsg.content}` with hex color `{hexmsg.content}`.")
                     try:
@@ -284,7 +284,7 @@ Click the checkmark to continue once you're ready.""")
                         await self.client.logs.send(embed=embed)
                         funcs.removecb(context.author.id, 30000)
                         conn.commit()
-                    except:
+                    except ValueError:
                         await context.send(f"{context.author.mention} One or more fields had an invalid input. Try again.")
                 except asyncio.TimeoutError:
                     await context.send(f"{context.author.mention} Timed out, cancelling.")
@@ -294,13 +294,14 @@ Click the checkmark to continue once you're ready.""")
             else:
                 funcs.removecb(context.author.id, 10000)
                 c.execute("SELECT upgradelevel FROM cheeseballztable WHERE userid=?", (context.author.id,))
-                upgrade = int(c.fetchone()[0]) + 1
+                prev = int(c.fetchone()[0])
+                upgrade = prev + 1
                 c.execute("UPDATE cheeseballztable SET upgradelevel=? WHERE userid=?", (upgrade, context.author.id))
                 conn.commit()
                 await context.send(f"{context.author.mention} {self.client.check} Purchase successful.")
                 embed = discord.Embed(title="Upgrade Level Increased", color=0x00ff00)
                 embed.add_field(name="User", value=context.author.mention, inline=False)
-                embed.add_field(name="New Upgrade Level", value=upgrade, inline=False)
+                embed.add_field(name="Level", value=f"{prev} to {upgrade}", inline=False)
                 await self.client.logs.send(embed=embed)
         else:
             await context.send(f"{context.author.mention} Select a valid item in the shop. Use `!shop` to list items.")
@@ -359,7 +360,7 @@ Click the checkmark to continue once you're ready.""")
                     embed = discord.Embed(title="Cheeseballz Sent", color=0xffff00)
                     embed.add_field(name="From user", value=context.author.mention, inline=False)
                     embed.add_field(name="To user", value=user.mention, inline=True)
-                    embed.add_field(name="Amount", value=amount, inline=True)
+                    embed.add_field(name="Amount", value=f"{amount} cb", inline=True)
                     await self.client.logs.send(embed=embed)
 
     @commands.command(name='daily', aliases=['d'])
@@ -497,6 +498,66 @@ Click the checkmark to continue once you're ready.""")
         else:
             await context.send(f"{context.author.mention} Select a valid page. Pages range from 1-3.")
 
+    @commands.command(name='gambleleaderboard', aliases=['gambletop', 'gamblelb'])
+    async def gambleleaderboard(self, context, page: int = 1):
+        if page <= 5:
+            msg = await context.send("Sorting...")
+            cbexcluded = context.guild.get_role(726974805831843900)
+            userdict = {}
+            userlist = []
+            i = 0
+            while True:
+                c.execute("SELECT userid FROM cheeseballztable ORDER BY totalgamble DESC LIMIT 1 OFFSET ?", (i,))
+                userid = int(c.fetchone()[0])
+                try:
+                    member = context.guild.get_member(userid)
+                    if cbexcluded in member.roles:
+                        pass
+                    else:
+                        userdict[userid] = funcs.getbal(userid)
+                        userlist.append(userid)
+                except AttributeError:
+                    pass
+                if len(userlist) == 30:
+                    break
+                i = i + 1
+
+            async def generate_leaderboard(page):
+                embed = discord.Embed(title="Amount Gambled Leaderboard", description=f"Page {page}", color=0xffa500)
+                upper = page * 10
+                lower = upper - 10
+                for i in range(lower, upper):
+                    embed.add_field(name="-------",
+                                    value=f"{i + 1}. <@{userlist[i]}> - {userdict[userlist[i]]} cheeseballz",
+                                    inline=False)
+                await msg.edit(content=None, embed=embed)
+
+            while True:
+                await generate_leaderboard(page)
+                if page == 1:
+                    await msg.add_reaction(u"\U000027a1")  # arrow pointing right
+                elif page == 3:
+                    await msg.add_reaction(u"\U00002b05")  # arrow pointing left
+                else:
+                    await msg.add_reaction(u"\U00002b05")  # arrow pointing left
+                    await msg.add_reaction(u"\U000027a1")  # arrow pointing right
+
+                def check(reaction, user):
+                    return user == context.message.author and (str(reaction.emoji) == '➡' or str(reaction.emoji) == '⬅')
+
+                try:
+                    reaction, user = await self.client.wait_for('reaction_add', timeout=10, check=check)
+                    if str(reaction.emoji) == '⬅':
+                        page = page - 1
+                    elif str(reaction.emoji) == '➡':
+                        page = page + 1
+                    await msg.clear_reactions()
+                except asyncio.TimeoutError:
+                    await msg.clear_reactions()
+                    break
+        else:
+            await context.send(f"{context.author.mention} Select a valid page. Pages range from 1-3.")
+
     @commands.command(name='setabout')
     @commands.cooldown(rate=1, per=30, type=BucketType.member)
     async def setabout(self, context, *, about: str = None):
@@ -524,7 +585,7 @@ Click the checkmark to continue once you're ready.""")
                 embed.add_field(name="Staff member", value=context.author.mention, inline=False)
                 embed.add_field(name="User", value=user.mention, inline=False)
                 embed.add_field(name="Operation", value=operation, inline=False)
-                embed.add_field(name="Amount", value=amount, inline=False)
+                embed.add_field(name="Amount", value=f"{amount} cb", inline=False)
                 embed.add_field(name="Reason", value=reason, inline=False)
                 return embed
 
@@ -575,7 +636,7 @@ Click the checkmark to continue once you're ready.""")
             embed = discord.Embed(title="Multiple cheeseballz transactions", color=0xffff00)
             embed.add_field(name="Staff", value=context.author.mention, inline=False)
             embed.add_field(name="Operation", value=operation, inline=False)
-            embed.add_field(name="Amount", value=amount, inline=False)
+            embed.add_field(name="Amount", value=f"{amount} cb", inline=False)
             embed.add_field(name="User IDs", value=userlist, inline=False)
             await self.client.logs.send(embed=embed)
             conn.commit()
@@ -609,7 +670,7 @@ Click the checkmark to continue once you're ready.""")
                     embed.add_field(name="Staff member", value=context.author.mention, inline=False)
                     embed.add_field(name="User", value=f"<@{userid}>", inline=False)
                     embed.add_field(name="Operation", value=operation, inline=False)
-                    embed.add_field(name="Amount", value=amount, inline=False)
+                    embed.add_field(name="Amount", value=f"{amount} cb", inline=False)
                     embed.add_field(name="Reason", value=reason.content, inline=False)
                     return embed
 
