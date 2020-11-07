@@ -449,13 +449,13 @@ Click the checkmark to continue once you're ready.""")
 
         reaction, user = await self.client.wait_for('reaction_add', timeout=10, check=selectorcheck)
         if str(reaction.emoji) == "💵":
-            column = "cheeseballz"
+            lb = "cheeseballz"
         elif str(reaction.emoji) == "🎰":
-            column = "totalgamble"
+            lb = "totalgamble"
         elif str(reaction.emoji) == "⬆":
-            column = "upgradelevel"
+            lb = "upgradelevel"
         else:
-            column = "cheeseballz"
+            lb = "cheeseballz"
 
         msg = await context.send("Sorting...")
         cbexcluded = context.guild.get_role(726974805831843900)
@@ -463,20 +463,20 @@ Click the checkmark to continue once you're ready.""")
         userlist = []
         i = 0
         while True:
-            c.execute(f"SELECT userid FROM cheeseballztable ORDER BY {column} DESC LIMIT 1 OFFSET ?", (i,))
+            c.execute("SELECT userid FROM cheeseballztable ORDER BY ? DESC LIMIT 1 OFFSET ?", (lb, i))
             userid = int(c.fetchone()[0])
             try:
                 member = context.guild.get_member(userid)
                 if cbexcluded not in member.roles:
 
-                    if column == "cheeseballz":
+                    if lb == "cheeseballz":
                         userdict[userid] = funcs.getbal(userid)
 
-                    elif column == "totalgamble":
+                    elif lb == "totalgamble":
                         c.execute("SELECT totalgamble FROM cheeseballztable WHERE userid=?", (userid,))
                         userdict[userid] = c.fetchone()[0]
 
-                    elif column == "upgradelevel":
+                    elif lb == "upgradelevel":
                         c.execute("SELECT upgradelevel FROM cheeseballztable WHERE userid=?", (userid,))
                         userdict[userid] = c.fetchone()[0]
 
@@ -492,17 +492,17 @@ Click the checkmark to continue once you're ready.""")
             upper = page * 10
             lower = upper - 10
             embed = 0
-            if column == "cheeseballz":
+            if lb == "cheeseballz":
                 embed = discord.Embed(title="Cheeseballz Leaderboard", description=f"Page {page}", color=0xffa500)
                 for i in range(lower, upper):
                     embed.add_field(name="-------", value=f"{i + 1}. <@{userlist[i]}> - {userdict[userlist[i]]} cheeseballz", inline=False)
 
-            elif column == "totalgamble":
+            elif lb == "totalgamble":
                 embed = discord.Embed(title="Lifetime Amount Gambled Leaderboard", description=f"Page {page}", color=0xffa500)
                 for i in range(lower, upper):
                     embed.add_field(name="-------",  value=f"{i + 1}. <@{userlist[i]}> - {userdict[userlist[i]]} cheeseballz", inline=False)
 
-            elif column == "upgradelevel":
+            elif lb == "upgradelevel":
                 embed = discord.Embed(title="Upgrade Level Leaderboard", description=f"Page {page}", color=0xffa500)
                 for i in range(lower, upper):
                     embed.add_field(name="-------", value=f"{i + 1}. <@{userlist[i]}> - {userdict[userlist[i]]} levels", inline=False)
