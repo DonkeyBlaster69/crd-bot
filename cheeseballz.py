@@ -160,8 +160,8 @@ class Cheeseballz(commands.Cog):
         embed.add_field(name="3. uwu role", value="Buy: 2,000 cb | Sell: 1,800 cb", inline=False)
         embed.add_field(name="4. owo role", value="Buy: 2,000 cb | Sell: 1,800 cb", inline=False)
         embed.add_field(name="5. DTRP Tokens", value="Exchange rate is 1 cb to 10 tokens.", inline=False)
-        embed.add_field(name="6. Custom role", value="Buy: 30,000 cb", inline=False)
-        embed.add_field(name=f"7. Increase upgrade level - Level {upgradelevel} to {upgradelevel + 1}", value="Buy: 10,000 cb", inline=False)
+        embed.add_field(name="6. Custom role", value="Buy: 40,000 cb", inline=False)
+        embed.add_field(name=f"7. Increase upgrade level - Level {upgradelevel} to {upgradelevel + 1}", value=f"Buy: {10+upgradelevel},000 cb", inline=False)
         await context.send(embed=embed)
 
     @commands.command(name='buy', aliases=['purchase'])
@@ -223,10 +223,10 @@ class Cheeseballz(commands.Cog):
                 await context.send(f"{context.author.mention} Could not parse an amount from {amtmsg.content}. Please try again.")
 
         elif selection == 6:
-            if bal < 30000:
+            if bal < 40000:
                 await funcs.insufficientcb(context, self.client)
             else:
-                checkmsg = await context.send(f"""{context.author.mention} Purchasing a custom role for 30,000 cb.
+                checkmsg = await context.send(f"""{context.author.mention} Purchasing a custom role for 40,000 cb.
 - You have 60 seconds to respond to each question.
 - You may cancel by ignoring the question for 60 seconds.
 - I suggest making the role you want in your own server first, to ensure names and hex color codes work.
@@ -289,19 +289,21 @@ Click the checkmark to continue once you're ready.""")
                 except asyncio.TimeoutError:
                     await context.send(f"{context.author.mention} Timed out, cancelling.")
         elif selection == 7:
-            if bal < 10000:
+            c.execute("SELECT upgradelevel FROM cheeseballztable WHERE userid=?", (context.author.id,))
+            prev = int(c.fetchone()[0])
+            cost = 10000 + (prev*1000)
+            if bal < cost:
                 await context.send(f"{context.author.mention} {self.client.x} Not enough cheeseballz.")
             else:
-                funcs.removecb(context.author.id, 10000)
-                c.execute("SELECT upgradelevel FROM cheeseballztable WHERE userid=?", (context.author.id,))
-                prev = int(c.fetchone()[0])
+                funcs.removecb(context.author.id, cost)
                 upgrade = prev + 1
                 c.execute("UPDATE cheeseballztable SET upgradelevel=? WHERE userid=?", (upgrade, context.author.id))
                 conn.commit()
                 await context.send(f"{context.author.mention} {self.client.check} Purchase successful.")
                 embed = discord.Embed(title="Upgrade Level Increased", color=0x00ff00)
-                embed.add_field(name="User", value=context.author.mention, inline=False)
-                embed.add_field(name="Level", value=f"{prev} to {upgrade}", inline=False)
+                embed.add_field(name="User", value=context.author.mention, inline=True)
+                embed.add_field(name="Level", value=f"{prev} to {upgrade}", inline=True)
+                embed.add_field(name="Cost", value=f"{cost} cb", inline=True)
                 await self.client.logs.send(embed=embed)
         else:
             await context.send(f"{context.author.mention} Select a valid item in the shop. Use `!shop` to list items.")
