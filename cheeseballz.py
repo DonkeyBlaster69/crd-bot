@@ -463,7 +463,7 @@ Click the checkmark to continue once you're ready.""")
         userlist = []
         i = 0
         while True:
-            c.execute("SELECT userid FROM cheeseballztable ORDER BY ? DESC LIMIT 1 OFFSET ?", (column, i))
+            c.execute(f"SELECT userid FROM cheeseballztable ORDER BY {column} DESC LIMIT 1 OFFSET ?", (i,))
             userid = int(c.fetchone()[0])
             try:
                 member = context.guild.get_member(userid)
