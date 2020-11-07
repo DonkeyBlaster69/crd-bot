@@ -434,101 +434,82 @@ Click the checkmark to continue once you're ready.""")
         await context.send(f"The guild currently has {total} cheeseballz stored.")
 
     @commands.command(name='leaderboard', aliases=['top', 'lb'])
-    async def leaderboard(self, context, page: int = 1):
-        if page <= 5:
-            msg = await context.send("Sorting...")
-            cbexcluded = context.guild.get_role(726974805831843900)
-            userdict = {}
-            userlist = []
-            i = 0
-            while True:
-                c.execute("SELECT userid FROM cheeseballztable ORDER BY cheeseballz DESC LIMIT 1 OFFSET ?", (i,))
-                userid = int(c.fetchone()[0])
-                try:
-                    member = context.guild.get_member(userid)
-                    if cbexcluded in member.roles:
-                        pass
-                    else:
-                        userdict[userid] = funcs.getbal(userid)
-                        userlist.append(userid)
-                except AttributeError:
-                    pass
-                if len(userlist) == 30:
-                    break
-                i = i + 1
+    async def leaderboard(self, context):
+        selector = await context.send(f"""{context.author.mention} Pick a leaderboard:
+- Cheeseballz \U0001f4b5
+- Lifetime Amount Gambled \U0001f3b0
+- Upgrade level \U00002b06
+""")
+        await selector.add_reaction(u"\U0001f4b5")  # :dollar:
+        await selector.add_reaction(u"\U0001f3b0")  # :slot_machine:
+        await selector.add_reaction(u"\U00002b06")  # :arrow_up:
 
-            async def generate_leaderboard(page):
-                embed = discord.Embed(title="Cheeseballz Leaderboard", description=f"Page {page}", color=0xffa500)
-                upper = page * 10
-                lower = upper - 10
-                for i in range(lower, upper):
-                    embed.add_field(name="-------",
-                                    value=f"{i + 1}. <@{userlist[i]}> - {userdict[userlist[i]]} cheeseballz",
-                                    inline=False)
-                await msg.edit(content=None, embed=embed)
+        def selectorcheck(reaction, user):
+            return user == context.author and (str(reaction.emoji) == "💵" or str(reaction.emoji) == "🎰" or str(reaction.emoji) == "⬆")
 
-            while True:
-                await generate_leaderboard(page)
-                if page == 1:
-                    await msg.add_reaction(u"\U000027a1")  # arrow pointing right
-                elif page == 3:
-                    await msg.add_reaction(u"\U00002b05")  # arrow pointing left
-                else:
-                    await msg.add_reaction(u"\U00002b05")  # arrow pointing left
-                    await msg.add_reaction(u"\U000027a1")  # arrow pointing right
-
-                def check(reaction, user):
-                    return user == context.message.author and (
-                            str(reaction.emoji) == '➡' or str(reaction.emoji) == '⬅')
-
-                try:
-                    reaction, user = await self.client.wait_for('reaction_add', timeout=10, check=check)
-                    if str(reaction.emoji) == '⬅':
-                        page = page - 1
-                    elif str(reaction.emoji) == '➡':
-                        page = page + 1
-                    await msg.clear_reactions()
-                except asyncio.TimeoutError:
-                    await msg.clear_reactions()
-                    break
+        reaction, user = await self.client.wait_for('reaction_add', timeout=10, check=selectorcheck)
+        if str(reaction.emoji) == "💵":
+            column = "cheeseballz"
+        elif str(reaction.emoji) == "🎰":
+            column = "totalgamble"
+        elif str(reaction.emoji) == "⬆":
+            column = "upgradelevel"
         else:
-            await context.send(f"{context.author.mention} Select a valid page. Pages range from 1-3.")
+            column = "cheeseballz"
 
-    @commands.command(name='gambleleaderboard', aliases=['gambletop', 'gamblelb'])
-    async def gambleleaderboard(self, context, page: int = 1):
-        if page <= 5:
-            msg = await context.send("Sorting...")
-            cbexcluded = context.guild.get_role(726974805831843900)
-            userdict = {}
-            userlist = []
-            i = 0
-            while True:
-                c.execute("SELECT userid FROM cheeseballztable ORDER BY totalgamble DESC LIMIT 1 OFFSET ?", (i,))
-                userid = int(c.fetchone()[0])
-                try:
-                    member = context.guild.get_member(userid)
-                    if cbexcluded in member.roles:
-                        pass
-                    else:
+        msg = await context.send("Sorting...")
+        cbexcluded = context.guild.get_role(726974805831843900)
+        userdict = {}
+        userlist = []
+        i = 0
+        while True:
+            c.execute("SELECT userid FROM cheeseballztable ORDER BY ? DESC LIMIT 1 OFFSET ?", (column, i))
+            userid = int(c.fetchone()[0])
+            try:
+                member = context.guild.get_member(userid)
+                if cbexcluded not in member.roles:
+
+                    if column == "cheeseballz":
+                        userdict[userid] = funcs.getbal(userid)
+
+                    elif column == "totalgamble":
                         c.execute("SELECT totalgamble FROM cheeseballztable WHERE userid=?", (userid,))
                         userdict[userid] = c.fetchone()[0]
-                        userlist.append(userid)
-                except AttributeError:
-                    pass
-                if len(userlist) == 30:
-                    break
-                i = i + 1
+
+                    elif column == "upgradelevel":
+                        c.execute("SELECT upgradelevel FROM cheeseballztable WHERE userid=?", (userid,))
+                        userdict[userid] = c.fetchone()[0]
+
+                    userlist.append(userid)
+
+            except AttributeError:
+                pass
+            if len(userlist) == 30:
+                break
+            i = i + 1
 
             async def generate_leaderboard(page):
-                embed = discord.Embed(title="Amount Gambled Leaderboard", description=f"Page {page}", color=0xffa500)
                 upper = page * 10
                 lower = upper - 10
-                for i in range(lower, upper):
-                    embed.add_field(name="-------",
-                                    value=f"{i + 1}. <@{userlist[i]}> - {userdict[userlist[i]]} cheeseballz",
-                                    inline=False)
+                embed = 0
+                if column == "cheeseballz":
+                    embed = discord.Embed(title="Cheeseballz Leaderboard", description=f"Page {page}", color=0xffa500)
+                    for i in range(lower, upper):
+                        embed.add_field(name="-------", value=f"{i + 1}. <@{userlist[i]}> - {userdict[userlist[i]]} cheeseballz", inline=False)
+
+                elif column == "totalgamble":
+                    embed = discord.Embed(title="Lifetime Amount Gambled Leaderboard", description=f"Page {page}", color=0xffa500)
+                    for i in range(lower, upper):
+                        embed.add_field(name="-------",  value=f"{i + 1}. <@{userlist[i]}> - {userdict[userlist[i]]} cheeseballz", inline=False)
+
+                elif column == "upgradelevel":
+                    embed = discord.Embed(title="Upgrade Level Leaderboard", description=f"Page {page}", color=0xffa500)
+                    for i in range(lower, upper):
+                        embed.add_field(name="-------", value=f"{i + 1}. <@{userlist[i]}> - {userdict[userlist[i]]} levels", inline=False)
+
                 await msg.edit(content=None, embed=embed)
 
+            page = 1
             while True:
                 await generate_leaderboard(page)
                 if page == 1:
@@ -552,8 +533,6 @@ Click the checkmark to continue once you're ready.""")
                 except asyncio.TimeoutError:
                     await msg.clear_reactions()
                     break
-        else:
-            await context.send(f"{context.author.mention} Select a valid page. Pages range from 1-3.")
 
     @commands.command(name='setabout')
     @commands.cooldown(rate=1, per=30, type=BucketType.member)
