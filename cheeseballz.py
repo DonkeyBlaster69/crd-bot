@@ -463,9 +463,9 @@ Click the checkmark to continue once you're ready.""")
         userlist = []
         i = 0
         while True:
+            c.execute(f"SELECT userid FROM cheeseballztable ORDER BY {column} DESC LIMIT 1 OFFSET ?", (i,))
+            userid = int(c.fetchone()[0])
             try:
-                c.execute("SELECT userid FROM cheeseballztable ORDER BY cheeseballz DESC LIMIT 1 OFFSET ?", (i,))
-                userid = int(c.fetchone()[0])
                 member = context.guild.get_member(userid)
                 if cbexcluded not in member.roles:
 
