@@ -487,6 +487,7 @@ Click the checkmark to continue once you're ready.""")
             if len(userlist) == 30:
                 break
             i = i + 1
+            print(userlist)
 
             async def generate_leaderboard(page):
                 upper = page * 10
