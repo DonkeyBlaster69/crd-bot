@@ -487,53 +487,52 @@ Click the checkmark to continue once you're ready.""")
             if len(userlist) == 30:
                 break
             i = i + 1
-            print(userlist)
 
-            async def generate_leaderboard(page):
-                upper = page * 10
-                lower = upper - 10
-                embed = 0
-                if column == "cheeseballz":
-                    embed = discord.Embed(title="Cheeseballz Leaderboard", description=f"Page {page}", color=0xffa500)
-                    for i in range(lower, upper):
-                        embed.add_field(name="-------", value=f"{i + 1}. <@{userlist[i]}> - {userdict[userlist[i]]} cheeseballz", inline=False)
+        async def generate_leaderboard(page):
+            upper = page * 10
+            lower = upper - 10
+            embed = 0
+            if column == "cheeseballz":
+                embed = discord.Embed(title="Cheeseballz Leaderboard", description=f"Page {page}", color=0xffa500)
+                for i in range(lower, upper):
+                    embed.add_field(name="-------", value=f"{i + 1}. <@{userlist[i]}> - {userdict[userlist[i]]} cheeseballz", inline=False)
 
-                elif column == "totalgamble":
-                    embed = discord.Embed(title="Lifetime Amount Gambled Leaderboard", description=f"Page {page}", color=0xffa500)
-                    for i in range(lower, upper):
-                        embed.add_field(name="-------",  value=f"{i + 1}. <@{userlist[i]}> - {userdict[userlist[i]]} cheeseballz", inline=False)
+            elif column == "totalgamble":
+                embed = discord.Embed(title="Lifetime Amount Gambled Leaderboard", description=f"Page {page}", color=0xffa500)
+                for i in range(lower, upper):
+                    embed.add_field(name="-------",  value=f"{i + 1}. <@{userlist[i]}> - {userdict[userlist[i]]} cheeseballz", inline=False)
 
-                elif column == "upgradelevel":
-                    embed = discord.Embed(title="Upgrade Level Leaderboard", description=f"Page {page}", color=0xffa500)
-                    for i in range(lower, upper):
-                        embed.add_field(name="-------", value=f"{i + 1}. <@{userlist[i]}> - {userdict[userlist[i]]} levels", inline=False)
+            elif column == "upgradelevel":
+                embed = discord.Embed(title="Upgrade Level Leaderboard", description=f"Page {page}", color=0xffa500)
+                for i in range(lower, upper):
+                    embed.add_field(name="-------", value=f"{i + 1}. <@{userlist[i]}> - {userdict[userlist[i]]} levels", inline=False)
 
-                await msg.edit(content=None, embed=embed)
+            await msg.edit(content=None, embed=embed)
 
-            page = 1
-            while True:
-                await generate_leaderboard(page)
-                if page == 1:
-                    await msg.add_reaction(u"\U000027a1")  # arrow pointing right
-                elif page == 3:
-                    await msg.add_reaction(u"\U00002b05")  # arrow pointing left
-                else:
-                    await msg.add_reaction(u"\U00002b05")  # arrow pointing left
-                    await msg.add_reaction(u"\U000027a1")  # arrow pointing right
+        page = 1
+        while True:
+            await generate_leaderboard(page)
+            if page == 1:
+                await msg.add_reaction(u"\U000027a1")  # arrow pointing right
+            elif page == 3:
+                await msg.add_reaction(u"\U00002b05")  # arrow pointing left
+            else:
+                await msg.add_reaction(u"\U00002b05")  # arrow pointing left
+                await msg.add_reaction(u"\U000027a1")  # arrow pointing right
 
-                def check(reaction, user):
-                    return user == context.message.author and (str(reaction.emoji) == '➡' or str(reaction.emoji) == '⬅')
+            def check(reaction, user):
+                return user == context.message.author and (str(reaction.emoji) == '➡' or str(reaction.emoji) == '⬅')
 
-                try:
-                    reaction, user = await self.client.wait_for('reaction_add', timeout=10, check=check)
-                    if str(reaction.emoji) == '⬅':
-                        page = page - 1
-                    elif str(reaction.emoji) == '➡':
-                        page = page + 1
-                    await msg.clear_reactions()
-                except asyncio.TimeoutError:
-                    await msg.clear_reactions()
-                    break
+            try:
+                reaction, user = await self.client.wait_for('reaction_add', timeout=10, check=check)
+                if str(reaction.emoji) == '⬅':
+                    page = page - 1
+                elif str(reaction.emoji) == '➡':
+                    page = page + 1
+                await msg.clear_reactions()
+            except asyncio.TimeoutError:
+                await msg.clear_reactions()
+                break
 
     @commands.command(name='setabout')
     @commands.cooldown(rate=1, per=30, type=BucketType.member)
