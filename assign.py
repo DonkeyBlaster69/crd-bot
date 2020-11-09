@@ -24,6 +24,9 @@ class Assign(commands.Cog):
         director = context.guild.get_role(528682495089180682)  # Community Relations Director
         overseer = context.guild.get_role(528682488613306379)  # Community Relations Overseer
 
+        # Insert custom members here for TR QOTD
+        trmembers = [560939403732844544, 294905719264903168]
+
         stafflist = []
         trlist = []
         crdqotdlist = []
@@ -35,8 +38,7 @@ class Assign(commands.Cog):
                         await member.remove_roles(tempexcluded)
                     else:
                         stafflist.append(member)
-            if bot in member.roles or assist in member.roles or deputy in member.roles or director in member.roles or overseer in member.roles:
-                print(member)
+            if bot in member.roles or assist in member.roles or deputy in member.roles or director in member.roles or overseer in member.roles or member.id in trmembers:
                 trlist.append(member)
 
         # checks for dupes
