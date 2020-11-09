@@ -31,7 +31,7 @@ class Staff(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message):
         if message.channel.id == 656798105957564416:
-            starttags = ['[event]', '*[event]*', '**[event]**', '***[event]***', 'https', 'http']
+            starttags = ['[event]', 'http']
             for tag in starttags:
                 if tag in message.content.lower():
                     c.execute("SELECT weekevents FROM stafftable WHERE userid=?", (message.author.id,))
