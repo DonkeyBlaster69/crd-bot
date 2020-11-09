@@ -25,30 +25,38 @@ class Assign(commands.Cog):
         overseer = context.guild.get_role(528682488613306379)  # Community Relations Overseer
 
         stafflist = []
+        trlist = []
         crdqotdlist = []
         trqotdlist = []
         for member in context.guild.members:
-            if staff in member.roles:
-                if tempexcluded in member.roles:
-                    await member.remove_roles(tempexcluded)
-                elif excluded in member.roles or suspended in member.roles:
-                    pass
-                else:
-                    stafflist.append(member)
+            if excluded not in member.roles and suspended not in member.roles:
+                if staff in member.roles:
+                    if tempexcluded in member.roles:
+                        await member.remove_roles(tempexcluded)
+                    else:
+                        stafflist.append(member)
+                if bot in member.roles or assist in member.roles or deputy in member.roles or director in member.roles or overseer in member.roles:
+                    trlist.append(member)
+
         # checks for dupes
         for i in range(7):
-            tempchoice = random.choice(stafflist)
-            crdqotdlist.append(tempchoice)
-            stafflist.remove(tempchoice)
-            await tempchoice.add_roles(tempexcluded)
+            tempchoice1 = random.choice(stafflist)
+            crdqotdlist.append(tempchoice1)
+            stafflist.remove(tempchoice1)
+            await tempchoice1.add_roles(tempexcluded)
+
+            tempchoice2 = random.choice(trlist)
+            trqotdlist.append(tempchoice2)
+            trlist.remove(tempchoice2)
+
         embed = discord.Embed(title="QOTD assignments", color=0x8100c2)
-        embed.add_field(name="Monday", value=f"CRD: {crdqotdlist[0].mention}", inline=False)
-        embed.add_field(name="Tuesday", value=f"CRD: {crdqotdlist[1].mention}", inline=False)
-        embed.add_field(name="Wednesday", value=f"CRD: {crdqotdlist[2].mention}", inline=False)
-        embed.add_field(name="Thursday", value=f"CRD: {crdqotdlist[3].mention}", inline=False)
-        embed.add_field(name="Friday", value=f"CRD: {crdqotdlist[4].mention}", inline=False)
-        embed.add_field(name="Saturday", value=f"CRD: {crdqotdlist[5].mention}", inline=False)
-        embed.add_field(name="Sunday", value=f"CRD: {crdqotdlist[6].mention}", inline=False)
+        embed.add_field(name="Monday", value=f"CRD: {crdqotdlist[0].mention}\nTR: {trqotdlist[0].mention}", inline=False)
+        embed.add_field(name="Tuesday", value=f"CRD: {crdqotdlist[1].mention}\nTR: {trqotdlist[1].mention}", inline=False)
+        embed.add_field(name="Wednesday", value=f"CRD: {crdqotdlist[2].mention}\nTR: {trqotdlist[2].mention}", inline=False)
+        embed.add_field(name="Thursday", value=f"CRD: {crdqotdlist[3].mention}\nTR: {trqotdlist[3].mention}", inline=False)
+        embed.add_field(name="Friday", value=f"CRD: {crdqotdlist[4].mention}\nTR: {trqotdlist[4].mention}", inline=False)
+        embed.add_field(name="Saturday", value=f"CRD: {crdqotdlist[5].mention}\nTR: {trqotdlist[5].mention}", inline=False)
+        embed.add_field(name="Sunday", value=f"CRD: {crdqotdlist[6].mention}\nTR: {trqotdlist[6].mention}", inline=False)
         staffannouncements = self.client.get_channel(656636514691973139)
         await staffannouncements.send(embed=embed)
         await context.message.add_reaction(self.client.check)
