@@ -36,6 +36,7 @@ class Assign(commands.Cog):
                     else:
                         stafflist.append(member)
             if bot in member.roles or assist in member.roles or deputy in member.roles or director in member.roles or overseer in member.roles:
+                print(member)
                 trlist.append(member)
 
         # checks for dupes
