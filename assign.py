@@ -35,8 +35,8 @@ class Assign(commands.Cog):
                         await member.remove_roles(tempexcluded)
                     else:
                         stafflist.append(member)
-                if bot in member.roles or assist in member.roles or deputy in member.roles or director in member.roles or overseer in member.roles:
-                    trlist.append(member)
+            if bot in member.roles or assist in member.roles or deputy in member.roles or director in member.roles or overseer in member.roles:
+                trlist.append(member)
 
         # checks for dupes
         for i in range(7):
