@@ -282,7 +282,7 @@ Click the checkmark to continue once you're ready.""")
                         embed.add_field(name="Role name", value=rolenamemsg.content, inline=False)
                         embed.add_field(name="Role color", value=hexmsg.content, inline=False)
                         await self.client.logs.send(embed=embed)
-                        funcs.removecb(context.author.id, 30000)
+                        funcs.removecb(context.author.id, 40000)
                         conn.commit()
                     except ValueError:
                         await context.send(f"{context.author.mention} One or more fields had an invalid input. Try again.")
