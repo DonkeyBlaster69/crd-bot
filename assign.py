@@ -62,6 +62,7 @@ class Assign(commands.Cog):
         embed.add_field(name="Sunday", value=f"CRD: {crdqotdlist[6].mention}\nTR: {trqotdlist[6].mention}", inline=False)
         staffannouncements = self.client.get_channel(656636514691973139)
         await staffannouncements.send(embed=embed)
+        await context.message.clear_reactions()
         await context.message.add_reaction(self.client.check)
 
 
