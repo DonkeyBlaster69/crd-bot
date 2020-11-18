@@ -31,15 +31,18 @@ class Staff(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message):
         if message.channel.id == 656798105957564416:
+            logged = False
             starttags = ['[event]', 'http']
             for tag in starttags:
-                if tag in message.content.lower():
-                    c.execute("SELECT weekevents FROM stafftable WHERE userid=?", (message.author.id,))
-                    c.execute("UPDATE stafftable SET weekevents=? WHERE userid=?", (int(c.fetchone()[0]) + 1, message.author.id))
-                    c.execute("SELECT totalevents FROM stafftable WHERE userid=?", (message.author.id,))
-                    c.execute("UPDATE stafftable SET totalevents=? WHERE userid=?", (int(c.fetchone()[0]) + 1, message.author.id))
-                    conn.commit()
-                    await message.add_reaction(self.client.check)
+                if not logged:
+                    if tag in message.content.lower():
+                        c.execute("SELECT weekevents FROM stafftable WHERE userid=?", (message.author.id,))
+                        c.execute("UPDATE stafftable SET weekevents=? WHERE userid=?", (int(c.fetchone()[0]) + 1, message.author.id))
+                        c.execute("SELECT totalevents FROM stafftable WHERE userid=?", (message.author.id,))
+                        c.execute("UPDATE stafftable SET totalevents=? WHERE userid=?", (int(c.fetchone()[0]) + 1, message.author.id))
+                        conn.commit()
+                        logged = True
+                        await message.add_reaction(self.client.check)
 
     @commands.command(name='resetweek')
     @commands.has_guild_permissions(administrator=True)
