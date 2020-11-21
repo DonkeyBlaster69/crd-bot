@@ -15,8 +15,7 @@ class AdvertisingCheck(commands.cog):
         if message.channel.id == 663241106372427790:
             if message.author.joined_at + timedelta(hours=48) > datetime.now():
                 await message.delete()
-                waitmsg = await message.channel.send(
-                    f"{message.author.mention} {self.client.x} Please wait 48 hours before advertising in this channel.")
+                waitmsg = await message.channel.send(f"{message.author.mention} {self.client.x} Please wait 48 hours before advertising in this channel.")
                 await asyncio.sleep(5)
                 await waitmsg.delete()
 
