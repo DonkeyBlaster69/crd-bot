@@ -4,7 +4,7 @@ conn = sqlite3.connect('cheeseballz.db')
 c = conn.cursor()
 
 startup_extensions = ["updates", "cheeseballz", "cbgames", "randoms", "presence", "staff", "others", "exec", "assign",
-                      "membercount", "errorhandler", "advertisingcheck", "jishaku"]
+                      "membercount", "errorhandler", "advertisingcheck", "roles", "jishaku"]
 
 
 def addcb(userid, amount):
