@@ -5,6 +5,9 @@ from discord.ext import commands
 
 class AdvertisingCheck(commands.cog):
 
+    def __init__(self, client):
+        self.client = client
+
     @commands.Cog.listener()
     async def on_message(self, message):
         # If channel is the advert channel, and if author joined within the last 48h
