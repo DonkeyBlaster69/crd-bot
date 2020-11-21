@@ -3,7 +3,7 @@ from datetime import datetime, timedelta
 from discord.ext import commands
 
 
-class AdvertisingCheck(commands.cog):
+class AdvertisingCheck(commands.Cog):
 
     def __init__(self, client):
         self.client = client
