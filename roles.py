@@ -13,9 +13,9 @@ class Roles(commands.Cog):
             guild = self.client.get_guild(payload.guild_id)
             member = guild.get_member(payload.user_id)
 
-            qotd = await guild.get_role(656878039430594601)
-            competition = await guild.get_role(656875723482595338)
-            giveaway = await guild.get_role(656797072938237971)
+            qotd = guild.get_role(656878039430594601)
+            competition = guild.get_role(656875723482595338)
+            giveaway = guild.get_role(656797072938237971)
 
             if str(payload.emoji) == '📰':  # Newspaper \U0001f4f0
                 await member.add_roles(qotd, reason="Selected by the user from the role menu.")
@@ -36,9 +36,9 @@ class Roles(commands.Cog):
             guild = self.client.get_guild(payload.guild_id)
             member = guild.get_member(payload.user_id)
 
-            qotd = await guild.get_role(656878039430594601)
-            competition = await guild.get_role(656875723482595338)
-            giveaway = await guild.get_role(656797072938237971)
+            qotd = guild.get_role(656878039430594601)
+            competition = guild.get_role(656875723482595338)
+            giveaway = guild.get_role(656797072938237971)
 
             if str(payload.emoji) == '📰':  # Newspaper \U0001f4f0
                 await member.remove_roles(qotd, reason="Unselected by the user from the role menu.")
