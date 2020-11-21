@@ -10,7 +10,7 @@ class Roles(commands.Cog):
     async def on_raw_reaction_add(self, payload):
         if payload.message_id == 779613003661705246:
 
-            guild = await self.client.get_guild(payload.guild_id)
+            guild = self.client.get_guild(payload.guild_id)
             member = await guild.get_member(payload.member_id)
 
             qotd = await guild.get_role(656878039430594601)
