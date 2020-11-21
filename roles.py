@@ -11,7 +11,7 @@ class Roles(commands.Cog):
         if payload.message_id == 779613003661705246:
 
             guild = self.client.get_guild(payload.guild_id)
-            member = await guild.get_member(payload.member_id)
+            member = guild.get_member(payload.member_id)
 
             qotd = await guild.get_role(656878039430594601)
             competition = await guild.get_role(656875723482595338)
@@ -33,8 +33,8 @@ class Roles(commands.Cog):
     async def on_raw_reaction_remove(self, payload):
         if payload.message_id == 779613003661705246:
 
-            guild = await self.client.get_guild(payload.guild_id)
-            member = await guild.get_member(payload.member_id)
+            guild = self.client.get_guild(payload.guild_id)
+            member = guild.get_member(payload.member_id)
 
             qotd = await guild.get_role(656878039430594601)
             competition = await guild.get_role(656875723482595338)
