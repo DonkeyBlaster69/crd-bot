@@ -1,6 +1,4 @@
 import discord
-import asyncio
-import funcs
 from discord.ext import commands
 
 
@@ -8,26 +6,6 @@ class Others(commands.Cog):
 
     def __init__(self, client):
         self.client = client
-
-    @commands.command(name='smite')
-    async def smite(self, context, user: discord.Member = None):
-        if user is None:
-            await context.send(f"{context.author.mention} Command usage: `!smite <@user>`")
-        else:
-            with open('smite.txt') as f:
-                if str(context.author.id) in f.read() or context.author.guild_permissions.administrator:
-                    if user.id == 291661685863874560:
-                        await context.message.add_reaction("\U0001F914")
-                        for i in range(10):
-                            await asyncio.sleep(0.15)
-                            await context.author.send(f"Smited by {context.author}!")
-                    else:
-                        await context.message.add_reaction(self.client.check)
-                        for i in range(10):
-                            await asyncio.sleep(0.15)
-                            await user.send(f"Smited by {context.author}!")
-                else:
-                    await funcs.noperms(context, self.client)
 
     @commands.command(name='group', aliases=['donate', 'game'])
     async def group(self, context):
