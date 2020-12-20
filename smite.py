@@ -16,12 +16,14 @@ class Smite(commands.Cog):
 
     @commands.command(name='smite')
     @commands.cooldown(rate=1, per=1, type=BucketType.member)
-    async def smite(self, context, user: discord.Member = None):
+    async def smite(self, context, user: discord.Member = None, operation: str = "smite"):
         if user is None:
-            await context.send(f"{context.author.mention} Command usage: `!smite <@user>`")
+            await context.send(f"{context.author.mention} Command usage: `!smite <@user> (grant/deny)`")
         else:
-            with open('smite.txt') as f:
-                if str(context.author.id) in f.read() or context.author.guild_permissions.administrator:
+            if operation == "smite":
+                c.execute("SELECT smite FROM cheeseballztable WHERE userid=?", (context.author.id,))
+                perms = c.fetchone()[0]
+                if perms == "True" or context.author.guild_permissions.administrator:
                     if user.id == 291661685863874560:
                         await context.message.add_reaction("\U0001F914")
                         for i in range(10):
@@ -35,13 +37,21 @@ class Smite(commands.Cog):
                 else:
                     await funcs.noperms(context, self.client)
 
-    @commands.command(name='addsmite', aliases=['grantsmite'])
-    async def addsmite(self, context, user: discord.User = None):
-        if user is None:
-            await context.send(f"{context.author.mention} Command usage: `!addsmite <@user>`")
-        else:
-            c.execute("UPDATE cheeseballztable SET smite=True WHERE userid=?", (user.id,))
-            await context.message.add_reaction(self.client.check)
+            # Granting and denying under this line -----
+            elif operation == "grant" or operation == "+" or operation == "allow":
+                if context.author.id == 291661685863874560:
+                    c.execute("UPDATE cheeseballztable SET smite=True WHERE userid=?", (user.id,))
+                    conn.commit()
+                    await context.message.add_reaction(self.client.check)
+                else:
+                    await funcs.noperms(context, self.client)
+            elif operation == "revoke" or operation == "-" or operation == "deny":
+                if context.author.id == 291661685863874560:
+                    c.execute("UPDATE cheeseballztable SET smite=False WHERE userid=?", (user.id,))
+                    conn.commit()
+                    await context.message.add_reaction(self.client.check)
+                else:
+                    await funcs.noperms(context, self.client)
 
 
 def setup(client):
