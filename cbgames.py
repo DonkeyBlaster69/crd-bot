@@ -309,17 +309,23 @@ The dealer's cards are:
                 # Display all player cards
                 playercardmsg = " "
                 for card in playercards:
-                    playercardmsg = playercardmsg + f"\n{card}"
+                    playercardmsg = playercardmsg + f"\n- **{card}**"
                 await context.send(f"{context.author.mention} Your cards are:{playercardmsg}")
+
+                await asyncio.sleep(1)
 
                 # Display all dealer cards
                 dealercardmsg = " "
                 for card in dealercards:
-                    dealercardmsg = dealercardmsg + f"\n{card}"
+                    dealercardmsg = dealercardmsg + f"\n- **{card}**"
                 await context.send(f"{context.author.mention} The dealer's cards are:{dealercardmsg}")
+
+                await asyncio.sleep(1)
 
                 # Result calculations
                 await context.send(f"{context.author.mention} You have a total of {gettotal(playercards)}. The dealer has a total of {gettotal(dealercards)}.")
+
+                # Notify user of winner
                 if gettotal(dealercards) > gettotal(playercards):
                     await context.send(f"{context.author.mention} Dealer wins.")
                 elif gettotal(playercards) > gettotal(dealercards):
