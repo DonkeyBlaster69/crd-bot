@@ -65,7 +65,7 @@ class CBgames(commands.Cog):
                 await context.send(f"{context.author.mention} Sorry, try again.")
 
     @commands.command(name='double', aliases=['dub', 'doub'])
-    @commands.cooldown(rate=1, per=2, type=BucketType.member)
+    @commands.cooldown(rate=1, per=1, type=BucketType.member)
     async def double(self, context, amount: int = None):
         bal = funcs.getbal(context.author.id)
         if amount is None:
@@ -216,13 +216,13 @@ class CBgames(commands.Cog):
                                 break
 
     @commands.command(name='blackjack', aliases=['bj'])
-    @commands.cooldown(rate=1, per=30, type=BucketType.member)
+    @commands.cooldown(rate=1, per=1, type=BucketType.member)
     async def blackjack(self, context, amount: int = None):
         bal = funcs.getbal(context.author.id)
         if amount is None:
             await context.send(f"{context.author.mention} Command usage: `!blackjack <amount>`")
         elif amount < 50:
-            await context.send(f"{context.author.mention} You must be at least 50 cheeseballz.")
+            await context.send(f"{context.author.mention} You must bet at least 50 cheeseballz.")
         elif bal < amount:
             await funcs.insufficientcb(context, self.client)
         else:
