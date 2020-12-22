@@ -226,7 +226,11 @@ class CBgames(commands.Cog):
         elif bal < amount:
             await funcs.insufficientcb(context, self.client)
         else:
+            # Take money
+            funcs.removecb(context.author.id, amount)
             # Generate a list of card values
+            dealercards = []
+            playercards = []
             cards = {"Ace of Spades": 1, "Two of Spades": 2, "Three of Spades": 3, "Four of Spades": 4, "Five of Spades": 5, "Six of Spades": 6, "Seven of Spades": 7,
                      "Eight of Spades": 8, "Nine of Spades": 9, "Ten of Spades": 10, "Jack of Spades": 10, "Queen of Spades": 10, "King of Spades": 10,
 
@@ -238,6 +242,104 @@ class CBgames(commands.Cog):
 
                      "Ace of Diamonds": 1, "Two of Diamonds": 2, "Three of Diamonds": 3, "Four of Diamonds": 5, "Five of Diamonds": 5, "Six of Diamonds": 6, "Seven of Diamonds": 7,
                      "Eight of Diamonds": 8, "Nine of Diamonds": 9, "Ten of Diamonds": 10, "Jack of Diamonds": 10, "Queen of Diamonds": 10, "King of Diamonds": 10}
+
+            for i in range(2):
+                playercards.append(random.choice(list(cards)))
+                dealercards.append(random.choice(list(cards)))
+
+            await context.send(f"""{context.author.mention} Your cards are:
+- **{playercards[0]}**
+- **{playercards[1]}**
+
+The dealer's cards are:
+- **Hidden Card**
+- **{dealercards[1]})**
+""")
+
+            def check(m):
+                return m.author == context.author and m.channel == context.channel
+
+            def gettotal(cardset):
+                total = 0
+                for card in cardset:
+                    total = total + cards[card]
+                return total
+
+            status = "ongoing"
+            # Player actions
+            while True:
+                await context.send("What would you like to do? [hit/stand/double down]")
+                turn = await self.client.wait_for('message', check=check)
+                if turn.content.lower() == 'hit':
+                    newcard = random.choice(list(cards))
+                    await context.send(f"{context.author.mention} You drew a **{newcard}**.")
+                    playercards.append(newcard)
+                    if gettotal(playercards) > 21:
+                        await context.send(f"{context.author.mention} Bust. You have a total of {gettotal(playercards)}.")
+                        status = "player_bust"
+                        break
+                elif turn.content.lower() == 'stand':
+                    await context.send(f"{context.author.mention} Standing with a total of {gettotal(playercards)}")
+                    break
+                elif turn.content.lower() == 'doubledown' or turn.content.lower() == 'double down':
+                    # Remove CB again
+                    funcs.removecb(context.author.id, amount)
+                    amount = amount * 2
+                    # Give another card and end
+                    newcard = random.choice(list(cards))
+                    await context.send(f"{context.author.mention} Your final card is a **{newcard}**.")
+                    playercards.append(newcard)
+                    if gettotal(playercards) > 21:
+                        await context.send(f"{context.author.mention} Bust. You have a total of {gettotal(playercards)}.")
+                        status = "player_bust"
+                    break
+
+            # Dealer actions - continue hitting until total is more than 16
+            while gettotal(dealercards) <= 16 and status != "player_bust":
+                newcard = random.choice(list(cards))
+                await context.send(f"Dealer draws a **{newcard}**.")
+                dealercards.append(newcard)
+                if gettotal(dealercards) > 21:
+                    await context.send(f"{context.author.mention} Dealer busted with a total of {gettotal(dealercards)}.")
+                    status = "dealer_bust"
+                    break
+
+            if status == "ongoing":
+                # ONGOING is when player doesn't bust and dealer doesn't bust
+                # Display all player cards
+                playercardmsg = " "
+                for card in playercards:
+                    playercardmsg = playercardmsg + f"\n{card}"
+                await context.send(f"{context.author.mention} Your cards are:{playercardmsg}")
+
+                # Display all dealer cards
+                dealercardmsg = " "
+                for card in dealercards:
+                    dealercardmsg = dealercardmsg + f"\n{card}"
+                await context.send(f"{context.author.mention} The dealer's cards are:{dealercardmsg}")
+
+                # Result calculations
+                await context.send(f"{context.author.mention} You have a total of {gettotal(playercards)}. The dealer has a total of {gettotal(dealercards)}.")
+                if gettotal(dealercards) > gettotal(playercards):
+                    await context.send(f"{context.author.mention} Dealer wins.")
+                elif gettotal(playercards) > gettotal(dealercards):
+                    await context.send(f"{context.author.mention} You win. Received {amount*2} back.")
+                    funcs.addcb(context.author.id, amount*2)
+                elif gettotal(playercards) == gettotal(dealercards):
+                    await context.send(f"{context.author.mention} Push. Received {amount} back.")
+                    funcs.addcb(context.author.id, amount)
+
+            elif status == "player_bust":
+                # PLAYER_BUST when player has gone over 21
+                await context.send(f"{context.author.mention} Dealer wins.")
+            elif status == "dealer_bust":
+                # DEALER_BUST when dealer has gone over 21
+                await context.send(f"{context.author.mention} You win. Received {amount*2} back.")
+                funcs.addcb(context.author.id, amount*2)
+
+
+
+
 
 
 def setup(client):
