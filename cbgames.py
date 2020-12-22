@@ -252,8 +252,8 @@ class CBgames(commands.Cog):
 - **{playercards[1]}**
 
 The dealer's cards are:
-- **Hidden Card**
-- **{dealercards[1]})**
+- Hidden Card
+- **{dealercards[1]}**
 """)
 
             def check(m):
