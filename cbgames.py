@@ -324,7 +324,7 @@ The dealer's cards are:
                 cardmsg = " "
                 for card in playercards:
                     cardmsg = cardmsg + f"\n- **{card}**"
-                cardmsg = cardmsg + "\nThe dealer's cards are:\n"
+                cardmsg = cardmsg + "\n\nThe dealer's cards are:"
                 for card in dealercards:
                     cardmsg = cardmsg + f"\n- **{card}**"
                 await context.send(f"{context.author.mention} Your cards are:{cardmsg}")
