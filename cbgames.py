@@ -275,7 +275,7 @@ The dealer's cards are:
 
             # Check if player has a blackjack
             if gettotal(playercards) == 21:
-                await context.send(f"{context.author.mention} Blackjack. Received {amount*3} back.")
+                await context.send(f"{context.author.mention} Blackjack. Received {amount*3} cb back.")
                 funcs.addcb(context.author.id, amount*3)
                 status = "ended"
 
@@ -321,18 +321,13 @@ The dealer's cards are:
             if status == "ongoing":
                 # ONGOING is when player doesn't bust and dealer doesn't bust
                 # Display all player cards
-                playercardmsg = " "
+                cardmsg = " "
                 for card in playercards:
-                    playercardmsg = playercardmsg + f"\n- **{card}**"
-                await context.send(f"{context.author.mention} Your cards are:{playercardmsg}")
-
-                await asyncio.sleep(1)
-
-                # Display all dealer cards
-                dealercardmsg = " "
+                    cardmsg = cardmsg + f"\n- **{card}**"
+                cardmsg = cardmsg + "\nThe dealer's cards are:"
                 for card in dealercards:
-                    dealercardmsg = dealercardmsg + f"\n- **{card}**"
-                await context.send(f"{context.author.mention} The dealer's cards are:{dealercardmsg}")
+                    cardmsg = cardmsg + f"\n- **{card}**"
+                await context.send(f"{context.author.mention} Your cards are:{cardmsg}")
 
                 await asyncio.sleep(1)
 
@@ -343,10 +338,10 @@ The dealer's cards are:
                 if gettotal(dealercards) > gettotal(playercards):
                     await context.send(f"{context.author.mention} Dealer wins.")
                 elif gettotal(playercards) > gettotal(dealercards):
-                    await context.send(f"{context.author.mention} You win. Received {amount*2} back.")
+                    await context.send(f"{context.author.mention} You win. Received {amount*2} cb back.")
                     funcs.addcb(context.author.id, amount*2)
                 elif gettotal(playercards) == gettotal(dealercards):
-                    await context.send(f"{context.author.mention} Push. Received {amount} back.")
+                    await context.send(f"{context.author.mention} Push. Received {amount} cb back.")
                     funcs.addcb(context.author.id, amount)
 
             elif status == "player_bust":
@@ -354,7 +349,7 @@ The dealer's cards are:
                 await context.send(f"{context.author.mention} Dealer wins.")
             elif status == "dealer_bust":
                 # DEALER_BUST when dealer has gone over 21
-                await context.send(f"{context.author.mention} You win. Received {amount*2} back.")
+                await context.send(f"{context.author.mention} You win. Received {amount*2} cb back.")
                 funcs.addcb(context.author.id, amount*2)
 
 
