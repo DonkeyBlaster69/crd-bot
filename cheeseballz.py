@@ -686,7 +686,7 @@ Click the checkmark to continue once you're ready.""")
         if c.fetchone()[0] == 'false':
             await context.send(f"{context.author.mention} {self.client.check} Claimed 7500 cheeseballz.")
             funcs.addcb(context.author.id, 7500)
-            c.execute("UPDATE cheeseballztable SET xmas=true WHERE userid=?", (context.author.id,))
+            c.execute('UPDATE cheeseballztable SET xmas="true" WHERE userid=?', (context.author.id,))
             conn.commit()
         else:
             await context.send(f"{context.author.mention} {self.client.x} You've already claimed your present!")
