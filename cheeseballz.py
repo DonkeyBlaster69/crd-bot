@@ -680,6 +680,17 @@ Click the checkmark to continue once you're ready.""")
                         await logmsg.edit(embed=embed)
                         await reqmsg.clear_reactions()
 
+    @commands.command(name='xmas', aliases=['gift','claimgift'])
+    async def xmas(self, context):
+        c.execute("SELECT xmas FROM cheeseballtable WHERE userid=?", (context.author.id,))
+        if c.fetchone()[0] == 'false':
+            await context.send(f"{context.author.mention} {self.client.check} Claimed 7500 cheeseballz.")
+            funcs.addcb(context.author.id, 7500)
+            c.execute("UPDATE cheeseballtable SET xmas=true WHERE userid=?", (context.author.id,))
+            conn.commit()
+        else:
+            await context.send(f"{context.author.mention} {self.client.x} You've already claimed your present!")
+
 
 def setup(client):
     client.add_cog(Cheeseballz(client))
