@@ -263,6 +263,12 @@ The dealer's cards are:
                 total = 0
                 for card in cardset:
                     total = total + cards[card]
+                if total > 21:
+                    for card in cardset:
+                        if "Ace" in card:
+                            total = total - 10
+                            if total <= 21:
+                                break
                 return total
 
             status = "ongoing"
@@ -285,7 +291,7 @@ The dealer's cards are:
                         await context.send(f"{context.author.mention} Bust. You have a total of {gettotal(playercards)}.")
                         status = "player_bust"
                 elif turn.content.lower() == 'stand':
-                    await context.send(f"{context.author.mention} Standing with a total of {gettotal(playercards)}")
+                    await context.send(f"{context.author.mention} Standing with a total of {gettotal(playercards)}.")
                     break
                 elif turn.content.lower() == 'doubledown' or turn.content.lower() == 'double down':
                     # Remove CB again
@@ -299,6 +305,8 @@ The dealer's cards are:
                         await context.send(f"{context.author.mention} Bust. You have a total of {gettotal(playercards)}.")
                         status = "player_bust"
                     break
+                else:
+                    await context.send(f"{context.author.mention} Unrecognized selection.")
 
             # Dealer actions - continue hitting until total is more than 16
             while gettotal(dealercards) <= 16 and status != "player_bust":
