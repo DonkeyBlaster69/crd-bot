@@ -231,17 +231,17 @@ class CBgames(commands.Cog):
             # Generate a list of card values
             dealercards = []
             playercards = []
-            cards = {"Ace of Spades": 11, "Two of Spades": 2, "Three of Spades": 3, "Four of Spades": 4, "Five of Spades": 5, "Six of Spades": 6, "Seven of Spades": 7,
-                     "Eight of Spades": 8, "Nine of Spades": 9, "Ten of Spades": 10, "Jack of Spades": 10, "Queen of Spades": 10, "King of Spades": 10,
+            cards = {"Ace of :spades:": 11, "Two of ::spades::": 2, "Three of :spades:": 3, "Four of :spades:": 4, "Five of :spades:": 5, "Six of :spades:": 6, "Seven of :spades:": 7,
+                     "Eight of :spades:": 8, "Nine of :spades:": 9, "Ten of :spades:": 10, "Jack of :spades:": 10, "Queen of :spades:": 10, "King of :spades:": 10,
 
-                     "Ace of Clubs": 11, "Two of Clubs": 2, "Three of Clubs": 3, "Four of Clubs": 4, "Five of Clubs": 5, "Six of Clubs": 6, "Seven of Clubs": 7,
-                     "Eight of Clubs": 8, "Nine of Clubs": 9, "Ten of Clubs": 10, "Jack of Clubs": 10, "Queen of Clubs": 10, "King of Clubs": 10,
+                     "Ace of :clubs:": 11, "Two of :clubs:": 2, "Three of :clubs:": 3, "Four of :clubs:": 4, "Five of :clubs:": 5, "Six of :clubs:": 6, "Seven of :clubs:": 7,
+                     "Eight of :clubs:": 8, "Nine of :clubs:": 9, "Ten of :clubs:": 10, "Jack of :clubs:": 10, "Queen of :clubs:": 10, "King of :clubs:": 10,
 
-                     "Ace of Hearts": 11, "Two of Hearts": 2, "Three of Hearts": 3, "Four of Hearts": 4, "Five of Hearts": 5, "Six of Hearts": 6, "Seven of Hearts": 7,
-                     "Eight of Hearts": 8, "Nine of Hearts": 9, "Ten of Hearts": 10, "Jack of Hearts": 10, "Queen of Hearts": 10, "King of Hearts": 10,
+                     "Ace of :hearts:": 11, "Two of :hearts:": 2, "Three of :hearts:": 3, "Four of :hearts:": 4, "Five of :hearts:": 5, "Six of :hearts:": 6, "Seven of :hearts:": 7,
+                     "Eight of :hearts:": 8, "Nine of :hearts:": 9, "Ten of :hearts:": 10, "Jack of :hearts:": 10, "Queen of :hearts:": 10, "King of :hearts:": 10,
 
-                     "Ace of Diamonds": 11, "Two of Diamonds": 2, "Three of Diamonds": 3, "Four of Diamonds": 4, "Five of Diamonds": 5, "Six of Diamonds": 6, "Seven of Diamonds": 7,
-                     "Eight of Diamonds": 8, "Nine of Diamonds": 9, "Ten of Diamonds": 10, "Jack of Diamonds": 10, "Queen of Diamonds": 10, "King of Diamonds": 10}
+                     "Ace of :diamonds:": 11, "Two of :diamonds:": 2, "Three of :diamonds:": 3, "Four of :diamonds:": 4, "Five of :diamonds:": 5, "Six of :diamonds:": 6, "Seven of :diamonds:": 7,
+                     "Eight of :diamonds:": 8, "Nine of :diamonds:": 9, "Ten of :diamonds:": 10, "Jack of :diamonds:": 10, "Queen of :diamonds:": 10, "King of :diamonds:": 10}
 
             for i in range(2):
                 playercards.append(random.choice(list(cards)))
@@ -352,10 +352,6 @@ The dealer's cards are:
                 # DEALER_BUST when dealer has gone over 21
                 await context.send(f"{context.author.mention} You win. Received {amount*2} cb back.")
                 funcs.addcb(context.author.id, amount*2)
-
-
-
-
 
 
 def setup(client):
