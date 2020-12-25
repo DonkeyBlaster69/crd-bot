@@ -309,7 +309,7 @@ The dealer's cards are:
                     await context.send(f"{context.author.mention} Unrecognized selection.")
 
             # Dealer actions - continue hitting until total is more than 16
-            while gettotal(dealercards) <= 16 and status != "player_bust":
+            while gettotal(dealercards) <= 16 and status != "player_bust" and status != "ended":
                 await asyncio.sleep(0.5)
                 newcard = random.choice(list(cards))
                 await context.send(f"Dealer draws a **{newcard}**.")
