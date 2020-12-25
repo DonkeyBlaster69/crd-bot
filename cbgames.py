@@ -228,6 +228,7 @@ class CBgames(commands.Cog):
         else:
             # Take money
             funcs.removecb(context.author.id, amount)
+            funcs.addgamble(context.author.id, amount)
             # Generate a list of card values
             dealercards = []
             playercards = []
@@ -296,6 +297,7 @@ The dealer's cards are:
                 elif turn.content.lower() == 'doubledown' or turn.content.lower() == 'double down':
                     # Remove CB again
                     funcs.removecb(context.author.id, amount)
+                    funcs.addgamble(context.author.id, amount)
                     amount = amount * 2
                     # Give another card and end
                     newcard = random.choice(list(cards))
