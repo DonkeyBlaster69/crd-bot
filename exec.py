@@ -32,7 +32,7 @@ class Exec(commands.Cog):
     @commands.command(name="upload")
     @commands.is_owner()
     async def upload(self, context, filepath):
-        await context.send(file=open(f'{filepath}'))
+        await context.send(file=discord.File(filepath))
 
     @commands.command(name="append")
     @commands.is_owner()
