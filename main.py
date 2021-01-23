@@ -5,8 +5,11 @@ import funcs
 from discord.ext.commands import Bot
 from discord.ext import commands
 
+intents = discord.Intents.default()
+intents.members = True
+
 TOKEN = open("token.txt", "r").read()
-client = Bot(command_prefix='!')
+client = Bot(command_prefix='!', intents=intents)
 
 
 @client.event
